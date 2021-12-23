@@ -35,11 +35,10 @@ enum class TokenType {
 };
 
 class RegexToken {
-private:
+public:
   TokenType type;
   std::string value;
 
-public:
   RegexToken(TokenType type) : type{type}, value{} {}
 
   RegexToken(TokenType type, std::string value) : type{type}, value{value} {}

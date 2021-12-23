@@ -156,7 +156,7 @@ std::optional<RegexToken> RegexTokenizer::next() {
           buffer.push_back(c);
           goto match_numeric;
         default:
-          return error("");
+          return error("unexpected charactor in range");
       }
     }
 match_numeric:
@@ -204,7 +204,11 @@ break_braces:
       }
 
     case '[':
-      if (finish()) { return TokenType::LEFT_BRACKETS; }
+      if (finish()) {
+        stack.emplace_back('[');
+        ++brackets_depth;
+        return TokenType::LEFT_BRACKETS;
+      }
 
       switch (regex[index++]) {
         case '^':
@@ -243,7 +247,7 @@ break_braces:
         return error("unmatched right brackets");
       }
     case '-':
-      if (in_braces() && regex[index - 2] != '[') {
+      if (in_brackets() && regex[index - 2] != '[') {
         return error("unexpected hyphen");
       } else {
         buffer.push_back(c);
@@ -251,9 +255,19 @@ break_braces:
       }
 
     case '^':
-      return TokenType::MATCH_BEGIN;
+      if (index == 1) {
+        return TokenType::MATCH_BEGIN;
+      } else {
+        buffer.push_back(c);
+        break;
+      }
     case '$':
-      return TokenType::MATCH_END;
+      if (finish()) {
+        return TokenType::MATCH_END;
+      } else {
+        buffer.push_back(c);
+        break;
+      }
     case '*':
       return TokenType::ASTERISK;
     case '+':
@@ -284,8 +298,6 @@ break_braces:
       case '}':
       case '[':
       case ']':
-      case '^':
-      case '$':
       case '*':
       case '+':
       case '?':
@@ -293,9 +305,18 @@ break_braces:
       case '|':
         --index;
         return RegexToken{TokenType::ATOM, std::move(buffer)};
+      case '$':
+        if (finish()) {
+          index--;
+          return RegexToken{TokenType::ATOM, std::move(buffer)};
+        } else {
+          buffer.push_back(c);
+          break;
+        }
       case '-':
+        buffer.push_back(c);
         if (in_brackets()) {
-          if (!finish() && buffer.size() == 1) {
+          if (!finish() && buffer.size() == 2) {
             switch (auto c = regex[index++]) {
               case ']':
                 --index;
@@ -309,6 +330,7 @@ break_braces:
             }
           } else {
             index -= 2;
+            buffer.pop_back();
             buffer.pop_back();
             return RegexToken{TokenType::ATOM, std::move(buffer)};
           }
