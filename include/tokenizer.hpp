@@ -54,20 +54,20 @@ private:
   std::string_view regex;
   std::vector<char> stack;
   size_t index;
-  size_t parenthetheses_depth;
+  size_t parentheses_depth;
   size_t braces_depth;
   size_t brackets_depth;
 
   std::optional<RegexToken> error(const char *reason) {
     stack.clear();
     index = regex.size();
-    parenthetheses_depth = 0;
+    parentheses_depth = 0;
     braces_depth = 0;
     brackets_depth = 0;
     return RegexToken{TokenType::ERROR, reason};
   }
 
-  bool in_parenthetheses() { return !stack.empty() && stack.back() == '('; }
+  bool in_parentheses() { return !stack.empty() && stack.back() == '('; }
 
   bool in_braces() { return !stack.empty() && stack.back() == '{'; }
 
@@ -94,7 +94,7 @@ private:
 
 public:
   explicit RegexTokenizer(std::string_view regex) :
-      regex(regex), stack{}, index(0), parenthetheses_depth{0},
+      regex(regex), stack{}, index(0), parentheses_depth{0},
       braces_depth{0}, brackets_depth{0} {}
 
   std::optional<RegexToken> next();

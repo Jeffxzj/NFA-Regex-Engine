@@ -3,85 +3,28 @@
 #include "tokenizer.hpp"
 
 
-#define CASE_WHITESPACE \
-  ' ': \
-  case '\t': \
-  case '\n': \
-  case '\r': \
-  case '\f': \
-  case '\v'
-
 #define CASE_NUMERIC \
-  '0': \
-  case '1': \
-  case '2': \
-  case '3': \
-  case '4': \
-  case '5': \
-  case '6': \
-  case '7': \
-  case '8': \
-  case '9'
+  '0':      case '1': case '2': case '3': case '4': \
+  case '5': case '6': case '7': case '8': case '9'
 
 #define CASE_LOWER_CASE \
-  'a': \
-  case 'b': \
-  case 'c': \
-  case 'd': \
-  case 'e': \
-  case 'f': \
-  case 'g': \
-  case 'h': \
-  case 'i': \
-  case 'j': \
-  case 'k': \
-  case 'l': \
-  case 'm': \
-  case 'n': \
-  case 'o': \
-  case 'p': \
-  case 'q': \
-  case 'r': \
-  case 's': \
-  case 't': \
-  case 'u': \
-  case 'v': \
-  case 'w': \
-  case 'x': \
-  case 'y': \
+  'a':      case 'b': case 'c': case 'd': case 'e': \
+  case 'f': case 'g': case 'h': case 'i': case 'j': \
+  case 'k': case 'l': case 'm': case 'n': case 'o': \
+  case 'p': case 'q': case 'r': case 's': case 't': \
+  case 'u': case 'v': case 'w': case 'x': case 'y': \
   case 'z'
 
 #define CASE_UPPER_CASE \
-  'A': \
-  case 'B': \
-  case 'C': \
-  case 'D': \
-  case 'E': \
-  case 'F': \
-  case 'G': \
-  case 'H': \
-  case 'I': \
-  case 'J': \
-  case 'K': \
-  case 'L': \
-  case 'M': \
-  case 'N': \
-  case 'O': \
-  case 'P': \
-  case 'Q': \
-  case 'R': \
-  case 'S': \
-  case 'T': \
-  case 'U': \
-  case 'V': \
-  case 'W': \
-  case 'X': \
-  case 'Y': \
+  'A':      case 'B': case 'C': case 'D': case 'E': \
+  case 'F': case 'G': case 'H': case 'I': case 'J': \
+  case 'K': case 'L': case 'M': case 'N': case 'O': \
+  case 'P': case 'Q': case 'R': case 'S': case 'T': \
+  case 'U': case 'V': case 'W': case 'X': case 'Y': \
   case 'Z'
 
 #define CASE_ALPHABET \
-  CASE_LOWER_CASE : \
-  case CASE_UPPER_CASE
+  CASE_LOWER_CASE : case CASE_UPPER_CASE
 
 
 std::ostream &
@@ -142,7 +85,6 @@ std::optional<RegexToken> RegexTokenizer::next() {
       return std::nullopt;
     }
   }
-
   // in braces, only number and comma is allowed
   if (in_braces()) {
     while (!finish()) {
@@ -175,17 +117,16 @@ break_braces:
   switch (auto c = regex[index++]) {
     case '(':
       stack.emplace_back('(');
-      ++parenthetheses_depth;
+      ++parentheses_depth;
       return TokenType::LEFT_PARENTHESES;
     case ')':
-      if (in_parenthetheses()) {
+      if (in_parentheses()) {
         stack.pop_back();
-        --parenthetheses_depth;
+        --parentheses_depth;
         return TokenType::RIGHT_PARENTHESES;
       } else {
         return error("unmatched right parentheses");
       }
-
     case '{':
       if (braces_depth > 0) {
         return error("braces cannot be nested in braces");
@@ -202,7 +143,6 @@ break_braces:
       } else {
         return error("unmatched right braces");
       }
-
     case '[':
       if (finish()) {
         stack.emplace_back('[');
@@ -253,7 +193,6 @@ break_braces:
         buffer.push_back(c);
         break;
       }
-
     case '^':
       if (index == 1) {
         return TokenType::MATCH_BEGIN;
@@ -278,7 +217,6 @@ break_braces:
       return TokenType::PERIOD;
     case '|':
       return TokenType::VERTICAL_BAR;
-
     case '\\':
       if (finish()) {
         return error("escape at the end of expression");
@@ -335,9 +273,7 @@ break_braces:
             return RegexToken{TokenType::ATOM, std::move(buffer)};
           }
         }
-        --index;
-        return RegexToken{TokenType::ATOM, std::move(buffer)};
-
+        break;
       case '\\':
         if (index >= regex.size()) {
           return error("escape at the end of expression");
