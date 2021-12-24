@@ -3,35 +3,29 @@
 #include "tokenizer.hpp"
 
 
-#define CASE_NUMERIC \
-  '0':      case '1': case '2': case '3': case '4': \
-  case '5': case '6': case '7': case '8': case '9'
-
-#define CASE_LOWER_CASE \
-  'a':      case 'b': case 'c': case 'd': case 'e': \
-  case 'f': case 'g': case 'h': case 'i': case 'j': \
-  case 'k': case 'l': case 'm': case 'n': case 'o': \
-  case 'p': case 'q': case 'r': case 's': case 't': \
-  case 'u': case 'v': case 'w': case 'x': case 'y': \
-  case 'z'
-
-#define CASE_UPPER_CASE \
-  'A':      case 'B': case 'C': case 'D': case 'E': \
-  case 'F': case 'G': case 'H': case 'I': case 'J': \
-  case 'K': case 'L': case 'M': case 'N': case 'O': \
-  case 'P': case 'Q': case 'R': case 'S': case 'T': \
-  case 'U': case 'V': case 'W': case 'X': case 'Y': \
-  case 'Z'
-
-#define CASE_ALPHABET \
-  CASE_LOWER_CASE : case CASE_UPPER_CASE
+static char escape_char(char origin) {
+  switch(origin) {
+    case 't':
+      return '\t';
+    case 'n':
+      return '\n';
+    case 'r':
+      return '\r';
+    case 'f':
+      return '\f';
+    case 'v':
+      return '\v';
+    default:
+      return origin;
+  }
+}
 
 
 std::ostream &
 operator<<(std::ostream &stream, const RegexToken &other) {
   switch (other.type) {
     case TokenType::ATOM:
-      return stream << "ATOM: " << other.value;
+      return stream << "ATOM: " << other.string;
     case TokenType::LEFT_PARENTHESES:
       return stream << "LEFT_PARENTHESES";
     case TokenType::RIGHT_PARENTHESES:
@@ -51,9 +45,33 @@ operator<<(std::ostream &stream, const RegexToken &other) {
     case TokenType::RIGHT_BRACKETS:
       return stream << "RIGHT_BRACKETS";
     case TokenType::RANGE:
-      return stream << "RANGE: " << other.value;
-    case TokenType::CHARACTER_CLASS:
-      return stream << "CHARACTER_CLASS: " << other.value;
+      return stream << "RANGE: " << other.string;
+    case TokenType::CHARACTER_CLASS_UPPER:
+      return stream << "CHARACTER_CLASS_UPPER";
+    case TokenType::CHARACTER_CLASS_LOWER:
+      return stream << "CHARACTER_CLASS_LOWER";
+    case TokenType::CHARACTER_CLASS_ALPHA:
+      return stream << "CHARACTER_CLASS_ALPHA";
+    case TokenType::CHARACTER_CLASS_DIGIT:
+      return stream << "CHARACTER_CLASS_DIGIT";
+    case TokenType::CHARACTER_CLASS_XDIGIT:
+      return stream << "CHARACTER_CLASS_XDIGIT";
+    case TokenType::CHARACTER_CLASS_ALNUM:
+      return stream << "CHARACTER_CLASS_ALNUM";
+    case TokenType::CHARACTER_CLASS_PUNCT:
+      return stream << "CHARACTER_CLASS_PUNCT";
+    case TokenType::CHARACTER_CLASS_BLANK:
+      return stream << "CHARACTER_CLASS_BLANK";
+    case TokenType::CHARACTER_CLASS_SPACE:
+      return stream << "CHARACTER_CLASS_SPACE";
+    case TokenType::CHARACTER_CLASS_CNTRL:
+      return stream << "CHARACTER_CLASS_CNTRL";
+    case TokenType::CHARACTER_CLASS_GRAPH:
+      return stream << "CHARACTER_CLASS_GRAPH";
+    case TokenType::CHARACTER_CLASS_PRINT:
+      return stream << "CHARACTER_CLASS_PRINT";
+    case TokenType::CHARACTER_CLASS_WORD:
+      return stream << "CHARACTER_CLASS_WORD";
     case TokenType::MATCH_BEGIN:
       return stream << "MATCH_BEGIN";
     case TokenType::MATCH_END:
@@ -69,7 +87,7 @@ operator<<(std::ostream &stream, const RegexToken &other) {
     case TokenType::VERTICAL_BAR:
       return stream << "VERTICAL_BAR";
     case TokenType::ERROR:
-      return stream << "ERROR: " << other.value;
+      return stream << "ERROR: " << other.string;
     default:
       return stream << "UNKNOWN";
   }
@@ -109,7 +127,7 @@ match_numeric:
           break;
         default:
           --index;
-          return RegexToken{TokenType::NUMERIC, std::move(buffer)};
+          return RegexToken::numeric(buffer);
       }
     }
   }
@@ -160,7 +178,7 @@ break_braces:
             switch (auto c = regex[index++]) {
               case ':':
                 if (!finish() && regex[index++] == ']') {
-                  return RegexToken{TokenType::CHARACTER_CLASS, buffer};
+                  return RegexToken::character_class(buffer);
                 } else {
                   return error("unexpected character class");
                 }
@@ -242,11 +260,11 @@ break_braces:
       case '.':
       case '|':
         --index;
-        return RegexToken{TokenType::ATOM, std::move(buffer)};
+        return RegexToken::atom(std::move(buffer));
       case '$':
         if (finish()) {
           index--;
-          return RegexToken{TokenType::ATOM, std::move(buffer)};
+          return RegexToken::atom(std::move(buffer));
         } else {
           buffer.push_back(c);
           break;
@@ -258,11 +276,12 @@ break_braces:
             switch (auto c = regex[index++]) {
               case ']':
                 --index;
-                return RegexToken{TokenType::ATOM, std::move(buffer)};
+                return RegexToken::atom(std::move(buffer));
               case CASE_NUMERIC:
-              case CASE_ALPHABET:
+              case CASE_LOWER_CASE:
+              case CASE_UPPER_CASE:
                 buffer.push_back(c);
-                return RegexToken{TokenType::RANGE, std::move(buffer)};
+                return RegexToken::range(std::move(buffer));
               default:
                 return error("unexpected charactor in range");
             }
@@ -270,7 +289,7 @@ break_braces:
             index -= 2;
             buffer.pop_back();
             buffer.pop_back();
-            return RegexToken{TokenType::ATOM, std::move(buffer)};
+            return RegexToken::atom(std::move(buffer));
           }
         }
         break;
@@ -286,5 +305,5 @@ break_braces:
     }
   }
 
-  return RegexToken{TokenType::ATOM, std::move(buffer)};
+  return RegexToken::atom(std::move(buffer));
 }
