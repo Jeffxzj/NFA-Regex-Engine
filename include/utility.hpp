@@ -1,3 +1,7 @@
+#ifndef REGEX_UTILITY
+#define REGEX_UTILITY
+
+
 #define CASE_NUMERIC \
   '0':      case '1': case '2': case '3': case '4': \
   case '5': case '6': case '7': case '8': case '9'
@@ -17,4 +21,17 @@
   case 'P': case 'Q': case 'R': case 'S': case 'T': \
   case 'U': case 'V': case 'W': case 'X': case 'Y': \
   case 'Z'
-  
+
+
+struct CharacterRange {
+  char lower_bound;
+  char upper_bound;
+};
+
+struct RepeatRange {
+  size_t lower_bound; // >=1
+  size_t upper_bound; // if 0 means no upperbound
+};
+
+
+#endif // REGEX_UTILITY

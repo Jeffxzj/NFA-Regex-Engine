@@ -1,6 +1,7 @@
+#include "regex.hpp"
+
 #include <iostream>
 
-#include "regex.hpp"
 #include "tokenizer.hpp"
 
 

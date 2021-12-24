@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "tokenizer.hpp"
+
+#include <iostream>
 
 
 static char escape_char(char origin) {
@@ -26,6 +26,8 @@ operator<<(std::ostream &stream, const RegexToken &other) {
   switch (other.type) {
     case TokenType::ATOM:
       return stream << "ATOM: " << other.string;
+    case TokenType::ERROR:
+      return stream << "ERROR: " << other.string;
     case TokenType::LEFT_PARENTHESES:
       return stream << "LEFT_PARENTHESES";
     case TokenType::RIGHT_PARENTHESES:
@@ -44,8 +46,10 @@ operator<<(std::ostream &stream, const RegexToken &other) {
       return stream << "LEFT_BRACKETS_NOT";
     case TokenType::RIGHT_BRACKETS:
       return stream << "RIGHT_BRACKETS";
-    case TokenType::RANGE:
-      return stream << "RANGE: " << other.string;
+    case TokenType::CHARACTER_RANGE:
+      return stream
+          << "CHARACTER_RANGE: " << other.range.lower_bound
+          << '-' << other.range.upper_bound;
     case TokenType::CHARACTER_CLASS_UPPER:
       return stream << "CHARACTER_CLASS_UPPER";
     case TokenType::CHARACTER_CLASS_LOWER:
@@ -86,8 +90,6 @@ operator<<(std::ostream &stream, const RegexToken &other) {
       return stream << "PERIOD";
     case TokenType::VERTICAL_BAR:
       return stream << "VERTICAL_BAR";
-    case TokenType::ERROR:
-      return stream << "ERROR: " << other.string;
     default:
       return stream << "UNKNOWN";
   }
@@ -127,7 +129,9 @@ match_numeric:
           break;
         default:
           --index;
-          return RegexToken::numeric(buffer);
+          auto token = RegexToken::numeric(buffer);
+          if (token.is_error()) { clear(); }
+          return token;
       }
     }
   }
@@ -279,9 +283,12 @@ break_braces:
                 return RegexToken::atom(std::move(buffer));
               case CASE_NUMERIC:
               case CASE_LOWER_CASE:
-              case CASE_UPPER_CASE:
+              case CASE_UPPER_CASE: {
                 buffer.push_back(c);
-                return RegexToken::range(std::move(buffer));
+                auto token = RegexToken::character_range(std::move(buffer));
+                if (token.is_error()) { clear(); }
+                return token;
+              }
               default:
                 return error("unexpected charactor in range");
             }

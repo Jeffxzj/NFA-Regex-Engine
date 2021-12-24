@@ -1,3 +1,7 @@
+#ifndef REGEX_TOKENIZER
+#define REGEX_TOKENIZER
+
+
 #include <cstdint>
 #include <string_view>
 #include <string>
@@ -25,7 +29,7 @@ enum class TokenType {
   LEFT_BRACKETS,
   LEFT_BRACKETS_NOT,
   RIGHT_BRACKETS,
-  RANGE,
+  CHARACTER_RANGE,
   // character class
   CHARACTER_CLASS_UPPER,
   CHARACTER_CLASS_LOWER,
@@ -58,7 +62,7 @@ private:
   RegexToken(TokenType type, size_t value) : type{type}, value{value} {}
 
   RegexToken(TokenType type, char lower, char upper) :
-      type{type}, range_pair{lower, upper} {}
+      type{type}, range{lower, upper} {}
 
   void drop() {
     switch(type) {
@@ -79,6 +83,12 @@ private:
       case TokenType::ERROR:
         new(&string) std::string{other.string};
         break;
+      case TokenType::NUMERIC:
+        value = other.value;
+        break;
+      case TokenType::CHARACTER_RANGE:
+        range = other.range;
+        break;
       default:
         break;
     }
@@ -92,6 +102,12 @@ private:
       case TokenType::ERROR:
         new(&string) std::string{std::move(other.string)};
         break;
+      case TokenType::NUMERIC:
+        value = other.value;
+        break;
+      case TokenType::CHARACTER_RANGE:
+        range = other.range;
+        break;
       default:
         break;
     }
@@ -100,9 +116,10 @@ private:
 public:
   TokenType type;
   union {
+    struct {} empty;
     std::string string;
     size_t value;
-    char range_pair[2];
+    CharacterRange range;
   };
 
   static RegexToken error(const char *reason) {
@@ -116,8 +133,8 @@ public:
   static RegexToken numeric(const std::string &name) {
     size_t value = 0, value_max = std::numeric_limits<size_t>::max();
 
-    for (size_t i = name.size(); i > 0; --i) {
-      size_t digit = name[i - 1] - '0';
+    for (size_t i = 0; i < name.size(); ++i) {
+      size_t digit = name[i] - '0';
       if (value > (value_max - digit) / 10) {
         return error("number exceeds maximum boundary");
       } else {
@@ -128,10 +145,10 @@ public:
     return RegexToken{TokenType::NUMERIC, value};
   }
 
-  static RegexToken range(const std::string &name) {
+  static RegexToken character_range(const std::string &name) {
     switch (name[0]) {
       case CASE_NUMERIC:
-        switch (name[1]) {
+        switch (name[2]) {
           case CASE_NUMERIC:
             break;
           default:
@@ -139,7 +156,7 @@ public:
         }
         break;
       case CASE_LOWER_CASE:
-        switch (name[1]) {
+        switch (name[2]) {
           case CASE_LOWER_CASE:
             break;
           default:
@@ -147,7 +164,7 @@ public:
         }
         break;
       case CASE_UPPER_CASE:
-        switch (name[1]) {
+        switch (name[2]) {
           case CASE_UPPER_CASE:
             break;
           default:
@@ -158,7 +175,7 @@ public:
         return error("invalid range");
     }
 
-    return RegexToken{TokenType::RANGE, name[0], name[2]};
+    return RegexToken{TokenType::CHARACTER_RANGE, name[0], name[2]};
   }
 
   static RegexToken character_class(const std::string &name) {
@@ -193,7 +210,7 @@ public:
     }
   }
 
-  RegexToken(TokenType type) : type{type} {}
+  RegexToken(TokenType type) : type{type}, empty{} {}
 
   bool is_error() { return type == TokenType::ERROR; }
 
@@ -236,12 +253,16 @@ private:
 
   bool finish() { return index >= regex.size(); }
 
-  std::optional<RegexToken> error(const char *reason) {
+  void clear() {
     stack.clear();
     index = regex.size();
     parentheses_depth = 0;
     braces_depth = 0;
     brackets_depth = 0;
+  }
+
+  std::optional<RegexToken> error(const char *reason) {
+    clear();
     return RegexToken::error(reason);
   }
 
@@ -252,3 +273,6 @@ public:
 
   std::optional<RegexToken> next();
 };
+
+
+#endif // REGEX_TOKENIZER
