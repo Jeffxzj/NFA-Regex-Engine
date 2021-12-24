@@ -21,8 +21,7 @@ static char escape_char(char origin) {
 }
 
 
-std::ostream &
-operator<<(std::ostream &stream, const RegexToken &other) {
+std::ostream &operator<<(std::ostream &stream, const RegexToken &other) {
   switch (other.type) {
     case TokenType::ATOM:
       return stream << "ATOM: " << other.string;

@@ -116,7 +116,7 @@ private:
 public:
   TokenType type;
   union {
-    struct {} empty;
+    struct {} null;
     std::string string;
     size_t value;
     CharacterRange range;
@@ -210,7 +210,7 @@ public:
     }
   }
 
-  RegexToken(TokenType type) : type{type}, empty{} {}
+  RegexToken(TokenType type) : type{type}, null{} {}
 
   bool is_error() { return type == TokenType::ERROR; }
 
