@@ -1,3 +1,7 @@
+#ifndef REGEX_LIST
+#define REGEX_LIST
+
+
 #include <utility>
 
 
@@ -136,6 +140,12 @@ public:
       ptr = ptr->prev;
       return ret;
     }
+
+    void delete_node() {
+      ptr->prev->next = ptr->next;
+      ptr->next->prev = ptr->prev;
+      delete reinterpret_cast<ListNode *>(ptr);
+    }
   };
 
   List() : inner{} {}
@@ -174,3 +184,6 @@ public:
 
   ~List() { drop(); }
 };
+
+
+#endif // REGEX_LIST

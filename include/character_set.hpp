@@ -28,6 +28,15 @@ struct CharacterSet {
     if (c < 128) { set[c / 8] |= 1 << c % 8; }
   }
 
+  CharacterSet &operator|=(const CharacterSet &other) {
+    for (size_t i = 0; i < set.size(); ++i) { set[i] |= other.set[i]; }
+    return *this;
+  }
+
+  void complement() {
+    for (size_t i = 0; i < set.size(); ++i) { set[i] = ~set[i]; }
+  }
+
   friend std::ostream &
   operator<<(std::ostream &stream, const CharacterSet &other);
 };

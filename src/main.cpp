@@ -2,5 +2,6 @@
 
 
 int main(int argc, const char **argv) {
-  auto regex = Regex::init(argv[1]);
+  if (argc < 2) { exit(1); }
+  Regex::init(argv[1]);
 }
