@@ -6,8 +6,12 @@
 #include <new>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "utility.hpp"
+#include "character_set.hpp"
+#include "list.hpp"
+#include "tokenizer.hpp"
 
 
 class Edge;
@@ -25,9 +29,7 @@ private:
     return nodes.give_up_node(node, other.nodes);
   }
 
-  void give_up_nodes(RegGraph &other) {
-    nodes.give_up_nodes(other.nodes);
-  }
+  void give_up_nodes(RegGraph &other) { nodes.give_up_nodes(other.nodes); }
 
   void join_graph_continue(RegGraph &&graph);
 
@@ -41,6 +43,8 @@ public:
   NodePtr tail;
 
   static RegGraph single_edge(Edge &&edge);
+
+  static RegGraph complement(RegGraph &&graph);
 
   static RegGraph repeat_graph(RegGraph &&graph, RepeatRange range);
 
@@ -65,38 +69,23 @@ public:
 enum class EdgeType {
   EMPTY,
   CONCATENATION,
-  CHARACTER_UNION,
+  CHARACTER_SET,
   REPERAT,
-  CHARACTER_RANGE,
-  // character class
-  CHARACTER_CLASS_UPPER,
-  CHARACTER_CLASS_LOWER,
-  CHARACTER_CLASS_ALPHA,
-  CHARACTER_CLASS_DIGIT,
-  CHARACTER_CLASS_XDIGIT,
-  CHARACTER_CLASS_ALNUM,
-  CHARACTER_CLASS_PUNCT,
-  CHARACTER_CLASS_BLANK,
-  CHARACTER_CLASS_SPACE,
-  CHARACTER_CLASS_CNTRL,
-  CHARACTER_CLASS_GRAPH,
-  CHARACTER_CLASS_PRINT,
-  CHARACTER_CLASS_WORD,
 };
 
 class Edge {
 private:
-  Edge(EdgeType type, std::string value) : type{type}, string{value} {}
+  Edge() : type{EdgeType::EMPTY}, null{} {}
 
-  Edge(EdgeType type, RepeatRange range) : type{type}, repeat_range{range} {}
+  Edge(std::string value) : type{EdgeType::CONCATENATION}, string{value} {}
 
-  Edge(EdgeType type, CharacterRange range) :
-      type{type}, character_range{range} {}
+  Edge(CharacterSet set) : type{EdgeType::CHARACTER_SET}, character_set{set} {}
+
+  Edge(RepeatRange range) : type{EdgeType::REPERAT}, repeat_range{range} {}
 
   void drop() {
     switch(type) {
       case EdgeType::CONCATENATION:
-      case EdgeType::CHARACTER_UNION:
         string.~basic_string();
         break;
       default:
@@ -109,14 +98,13 @@ private:
 
     switch(type) {
       case EdgeType::CONCATENATION:
-      case EdgeType::CHARACTER_UNION:
         new(&string) std::string{other.string};
         break;
       case EdgeType::REPERAT:
         repeat_range = other.repeat_range;
         break;
-      case EdgeType::CHARACTER_RANGE:
-        character_range = other.character_range;
+      case EdgeType::CHARACTER_SET:
+        character_set = other.character_set;
         break;
       default:
         break;
@@ -128,14 +116,13 @@ private:
 
     switch(type) {
       case EdgeType::CONCATENATION:
-      case EdgeType::CHARACTER_UNION:
         new(&string) std::string{std::move(other.string)};
         break;
       case EdgeType::REPERAT:
         repeat_range = other.repeat_range;
         break;
-      case EdgeType::CHARACTER_RANGE:
-        character_range = other.character_range;
+      case EdgeType::CHARACTER_SET:
+        character_set = other.character_set;
         break;
       default:
         break;
@@ -148,28 +135,59 @@ public:
     struct {} null;
     std::string string;
     RepeatRange repeat_range;
-    CharacterRange character_range;
+    CharacterSet character_set;
   };
 
-  Edge(EdgeType type) : type{type}, null{} {}
+  static Edge empty() { return Edge{}; }
 
-  static Edge empty() { return Edge{EdgeType::EMPTY}; }
+  static Edge concanetation(std::string value) { return Edge{value}; }
 
-  static Edge concanetation(std::string value) {
-    return Edge{EdgeType::CONCATENATION, value};
-  }
+  static Edge character_union(CharacterSet set) { return Edge{set}; }
 
   static Edge character_union(std::string value) {
-    return Edge{EdgeType::CHARACTER_UNION, value};
+    return character_union(CharacterSet{value});
   }
 
-  static Edge repeat(RepeatRange range) {
-    return Edge{EdgeType::REPERAT, range};
+  static Edge character_union(CharacterRange range) {
+    return character_union(CharacterSet{range});
   }
 
-  static Edge characters(CharacterRange range) {
-    return Edge{EdgeType::CHARACTER_RANGE, range};
+  static Edge character_union(TokenType type) {
+    switch (type) {
+      case TokenType::CHARACTER_CLASS_UPPER:
+        return character_union(CHARACTER_SET_UPPER);
+      case TokenType::CHARACTER_CLASS_LOWER:
+        return character_union(CHARACTER_SET_LOWER);
+      case TokenType::CHARACTER_CLASS_ALPHA:
+        return character_union(CHARACTER_SET_ALPHA);
+      case TokenType::CHARACTER_CLASS_DIGIT:
+        return character_union(CHARACTER_SET_DIGIT);
+      case TokenType::CHARACTER_CLASS_XDIGIT:
+        return character_union(CHARACTER_SET_XDIGIT);
+      case TokenType::CHARACTER_CLASS_ALNUM:
+        return character_union(CHARACTER_SET_ALNUM);
+      case TokenType::CHARACTER_CLASS_PUNCT:
+        return character_union(CHARACTER_SET_PUNCT);
+      case TokenType::CHARACTER_CLASS_BLANK:
+        return character_union(CHARACTER_SET_BLANK);
+      case TokenType::CHARACTER_CLASS_SPACE:
+        return character_union(CHARACTER_SET_SPACE);
+      case TokenType::CHARACTER_CLASS_CNTRL:
+        return character_union(CHARACTER_SET_CONTRL);
+      case TokenType::CHARACTER_CLASS_GRAPH:
+        return character_union(CHARACTER_SET_GRAPH);
+      case TokenType::CHARACTER_CLASS_PRINT:
+        return character_union(CHARACTER_SET_PRINT);
+      case TokenType::CHARACTER_CLASS_WORD:
+        return character_union(CHARACTER_SET_WORD);
+      case TokenType::PERIOD:
+        return character_union(CHARACTER_SET_ALL);
+      default:
+        exit(1);
+    }
   }
+
+  static Edge repeat(RepeatRange range) { return Edge{range}; }
 
   friend std::ostream &operator<<(std::ostream &stream, const Edge &other);
 
@@ -189,7 +207,7 @@ public:
     return *this;
   }
 
-  ~Edge() {}
+  ~Edge() { drop(); }
 };
 
 template<class GraphPtr>

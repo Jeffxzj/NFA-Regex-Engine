@@ -175,6 +175,7 @@ public:
         return error("invalid range");
     }
 
+    if (name[0] > name[2]) { return error("invalid range"); }
     return RegexToken{TokenType::CHARACTER_RANGE, name[0], name[2]};
   }
 

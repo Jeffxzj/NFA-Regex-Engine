@@ -46,9 +46,7 @@ std::ostream &operator<<(std::ostream &stream, const RegexToken &other) {
     case TokenType::RIGHT_BRACKETS:
       return stream << "RIGHT_BRACKETS";
     case TokenType::CHARACTER_RANGE:
-      return stream
-          << "CHARACTER_RANGE: " << other.range.lower_bound
-          << '-' << other.range.upper_bound;
+      return stream << "CHARACTER_RANGE: " << other.range;
     case TokenType::CHARACTER_CLASS_UPPER:
       return stream << "CHARACTER_CLASS_UPPER";
     case TokenType::CHARACTER_CLASS_LOWER:
