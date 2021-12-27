@@ -21,9 +21,9 @@ class Edge;
 class Node;
 
 enum class NodeMarker {
-  ANONYMOUS = 0,
-  MATCH_BEGIN = 1 << 0,
-  MATCH_END = 1 << 1,
+  ANONYMOUS,
+  MATCH_BEGIN,
+  MATCH_END,
 };
 
 class RegGraph {

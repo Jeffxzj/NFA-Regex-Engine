@@ -3,7 +3,7 @@
 
 std::ostream & operator<<(std::ostream &stream, const CharacterSet &other) {
   stream << '[';
-  for (int i = 0; i < 33; ++i) {
+  for (int i = 0; i < 32; ++i) {
     if (other.has_char(i)) {
       switch (i) {
         case '\0':

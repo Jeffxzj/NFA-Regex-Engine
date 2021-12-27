@@ -24,10 +24,10 @@ public:
   }
 
   void emplace(ListImpl &&other) {
-    first->next = other.first->next;
-    last->prev = other.last->prev;
-    other.first->next = other.last;
-    other.last->prev = other.first;
+    first = other.first;
+    last = other.last;
+    other.first = nullptr;
+    other.last = nullptr;
   }
 
   ListImpl() :
@@ -97,6 +97,8 @@ private:
   ListImpl inner;
 
   void drop() {
+    if (inner.first == nullptr) { return; }
+
     auto *ptr = inner.first->next;
     while (ptr != inner.last) {
       auto *next = ptr->next;

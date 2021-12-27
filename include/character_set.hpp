@@ -11,7 +11,7 @@ struct CharacterSet {
   constexpr explicit CharacterSet(uint8_t args...) : set{args} {}
 
   constexpr explicit CharacterSet(CharacterRange range) : set{} {
-    for (int i = range.lower_bound; i < range.upper_bound; ++i) {
+    for (int i = range.lower_bound; i <= range.upper_bound; ++i) {
       set_char(i);
     }
   }
