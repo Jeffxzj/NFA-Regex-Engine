@@ -67,17 +67,23 @@ void RegGraph::repeat_graph(RepeatRange range) {
     head->add_empty_edge(tail);
     return;
   }
-  // loop is introduced, new tail must be created to avoid others
-  // using the loop
+  // loop needs to be created
+  auto new_head = create_node();
   auto new_tail = create_node();
   if (range.lower_bound < 2 && range.upper_bound == 0) {
+    // unbounded loop, empty edge could do it
     tail->add_empty_edge(head);
+    new_head->add_empty_edge(head);
+    tail->add_empty_edge(new_tail);
   } else {
+    // bounded loop, we need a stack to track loop count
     tail->add_edge(Edge::repeat(range), head);
+    new_head->add_edge(Edge::enter_loop(), head);
+    tail->add_edge(Edge::exit_loop(), new_tail);
   }
-  tail->add_empty_edge(new_tail);
+  head = new_head;
   tail = new_tail;
-
+  // allow skipping the whole loop
   if (range.lower_bound == 0) {
     head->add_empty_edge(tail);
   }
@@ -146,6 +152,10 @@ std::ostream &operator<<(std::ostream &stream, const Edge &other) {
       return stream << "CHARACTER_SET: " << other.set;
     case EdgeType::REPEAT:
       return stream << "REPEAT: " << other.range;
+    case EdgeType::ENTER_LOOP:
+      return stream << "ENTER_LOOP: " << other.range;
+    case EdgeType::EXIT_LOOP:
+      return stream << "EXIT_LOOP: " << other.range;
     default:
       return stream << "UNKNOWN";
   }
