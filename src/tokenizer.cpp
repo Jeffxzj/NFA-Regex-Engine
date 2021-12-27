@@ -227,15 +227,40 @@ break_braces:
         break;
       }
     case '*':
-      return TokenType::ASTERISK;
+      if (in_brackets()) {
+        buffer.push_back(c);
+        break;
+      } else {
+        return TokenType::ASTERISK;
+      }
     case '+':
-      return TokenType::PLUS_SIGN;
+      if (in_brackets()) {
+        buffer.push_back(c);
+        break;
+      } else {
+        return TokenType::PLUS_SIGN;
+      }
     case '?':
-      return TokenType::QUESTION_MARK;
+      if (in_brackets()) {
+        buffer.push_back(c);
+        break;
+      } else {
+        return TokenType::QUESTION_MARK;
+      }
     case '.':
-      return TokenType::PERIOD;
+      if (in_brackets()) {
+        buffer.push_back(c);
+        break;
+      } else {
+        return TokenType::PERIOD;
+      }      
     case '|':
-      return TokenType::VERTICAL_BAR;
+      if (in_brackets()) {
+        buffer.push_back(c);
+        break;
+      } else {
+        return TokenType::VERTICAL_BAR;
+      }      
     case '\\':
       if (finish()) {
         return error("escape at the end of expression");
@@ -249,17 +274,24 @@ break_braces:
   // now matching atom
   while (!finish()) {
     switch (auto c = regex[index++]) {
+      case '*':
+      case '+':
+      case '?':
+      case '.':
+      case '|':
+        if (in_brackets()) {
+          buffer.push_back(c);
+          break;
+        } else {
+          --index;
+          return RegexToken::atom(std::move(buffer));
+        }
       case '(':
       case ')':
       case '{':
       case '}':
       case '[':
       case ']':
-      case '*':
-      case '+':
-      case '?':
-      case '.':
-      case '|':
         --index;
         return RegexToken::atom(std::move(buffer));
       case '$':

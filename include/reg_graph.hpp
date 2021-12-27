@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <unordered_map>
+#include <set>
 
 #include "utility.hpp"
 #include "character_set.hpp"
@@ -18,11 +20,10 @@ class Edge;
 
 class Node;
 
-enum class NodeMarker : uint8_t {
-  ANONYMOUS = 0b00000000,
-  MATCH_BEGIN = 0b00000001,
-  MATCH_END = 0b00000010,
-  INVALID = 0b10000000,
+enum class NodeMarker {
+  ANONYMOUS,
+  MATCH_BEGIN,
+  MATCH_END,
 };
 
 class RegGraph {
@@ -118,6 +119,8 @@ enum class EdgeType {
   CONCATENATION,
   CHARACTER_SET,
   REPEAT,
+  ENTER_LOOP,
+  EXIT_LOOP,
 };
 
 class Edge {
@@ -127,6 +130,8 @@ private:
   Edge(CharacterSet set) : type{EdgeType::CHARACTER_SET}, set{set} {}
 
   Edge(RepeatRange range) : type{EdgeType::REPEAT}, range{range} {}
+
+  Edge(EdgeType type) : type{type}, null{} {}
 
   void drop() {
     switch(type) {
@@ -185,7 +190,11 @@ public:
 
   Edge() : type{EdgeType::EMPTY}, null{} {}
 
-  static Edge empty() { return Edge{}; }
+  static Edge empty() { return Edge{EdgeType::EMPTY}; }
+
+  static Edge enter_loop() { return Edge{EdgeType::ENTER_LOOP}; }
+
+  static Edge exit_loop() { return Edge{EdgeType::EXIT_LOOP}; }
 
   static Edge concanetation(std::string value) { return Edge{value}; }
 
