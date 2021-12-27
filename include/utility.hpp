@@ -50,6 +50,18 @@ struct RepeatRange {
     if (other.upper_bound != 0) { stream << other.upper_bound; }
     return stream << '}';
   }
+
+  bool in_lower_range(size_t value) const {
+    return value >= lower_bound;
+  }
+
+  bool in_upper_range(size_t value) const {
+    return upper_bound != 0 && value < upper_bound;
+  }
+
+  bool in_range(size_t value) const {
+    return in_lower_range(value) && in_upper_range(value);
+  }
 };
 
 
