@@ -2,7 +2,6 @@
 #define REGREX_PARSER
 
 
-#include "automata.hpp"
 #include "tokenizer.hpp"
 
 class Parser {

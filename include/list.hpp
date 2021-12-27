@@ -3,6 +3,7 @@
 
 
 #include <utility>
+#include <functional>
 
 
 class ListImpl {
@@ -74,10 +75,17 @@ public:
   ~ListImpl() { drop(); }
 };
 
+template<class T>
+class ListIter;
 
 template<class T>
 class List {
+public:
+  using Iter = ListIter<T>;
+
 private:
+  friend class ListIter<T>;
+
   struct ListNode : ListImpl::ListNode {
     T elem;
 
@@ -102,52 +110,6 @@ private:
   }
 
 public:
-  class Iter {
-  private:
-    friend class List;
-
-    ListImpl::ListNode *ptr;
-
-  public:
-    Iter(ListImpl::ListNode *ptr) : ptr{ptr} {}
-
-    T &operator*() { return reinterpret_cast<ListNode *>(ptr)->elem; }
-
-    T *operator->() { return &reinterpret_cast<ListNode *>(ptr)->elem; }
-
-    bool operator==(const Iter &other) const { return ptr == other.ptr; }
-
-    bool operator!=(const Iter &other) const { return ptr != other.ptr; }
-
-    Iter &operator++() {
-      ptr = ptr->next;
-      return *this;
-    }
-
-    Iter operator++(int) {
-      Iter ret = *this;
-      ptr = ptr->next;
-      return ret;
-    }
-
-    Iter &operator--() {
-      ptr = ptr->prev;
-      return *this;
-    }
-
-    Iter operator--(int) {
-      Iter ret = *this;
-      ptr = ptr->prev;
-      return ret;
-    }
-
-    void delete_node() {
-      ptr->prev->next = ptr->next;
-      ptr->next->prev = ptr->prev;
-      delete reinterpret_cast<ListNode *>(ptr);
-    }
-  };
-
   List() : inner{} {}
 
   Iter begin() { return Iter{inner.first->next}; }
@@ -184,6 +146,77 @@ public:
 
   ~List() { drop(); }
 };
+
+
+template<class T>
+class ListIter {
+private:
+  friend class List<T>;
+  friend class std::hash<ListIter>;
+
+  ListImpl::ListNode *ptr;
+
+public:
+  ListIter(ListImpl::ListNode *ptr) : ptr{ptr} {}
+
+  const T &operator*() const {
+    return reinterpret_cast<const typename List<T>::ListNode *>(ptr)->elem;
+  }
+
+  T &operator*() {
+    return reinterpret_cast<typename List<T>::ListNode *>(ptr)->elem;
+  }
+
+  const T *operator->() const {
+    return &reinterpret_cast<const typename List<T>::ListNode *>(ptr)->elem;
+  }
+
+  T *operator->() {
+    return &reinterpret_cast<typename List<T>::ListNode *>(ptr)->elem;
+  }
+
+  bool operator==(const ListIter &other) const { return ptr == other.ptr; }
+
+  bool operator!=(const ListIter &other) const { return ptr != other.ptr; }
+
+  ListIter &operator++() {
+    ptr = ptr->next;
+    return *this;
+  }
+
+  ListIter operator++(int) {
+    ListIter ret = *this;
+    ptr = ptr->next;
+    return ret;
+  }
+
+  ListIter &operator--() {
+    ptr = ptr->prev;
+    return *this;
+  }
+
+  ListIter operator--(int) {
+    ListIter ret = *this;
+    ptr = ptr->prev;
+    return ret;
+  }
+
+  void delete_node() {
+    ptr->prev->next = ptr->next;
+    ptr->next->prev = ptr->prev;
+    delete reinterpret_cast<typename List<T>::ListNode *>(ptr);
+  }
+};
+
+
+namespace std {
+  template<class T>
+  struct hash<ListIter<T>> {
+    size_t operator()(const ListIter<T> &other) const {
+      return hash<ListImpl::ListNode *>{}(other.ptr);
+    }
+  };
+}
 
 
 #endif // REGEX_LIST

@@ -1,5 +1,5 @@
-#ifndef REGEX_AUTOMATA
-#define REGEX_AUTOMATA
+#ifndef REGEX_REG_GRAPH
+#define REGEX_REG_GRAPH
 
 
 #include <cstdint>
@@ -18,6 +18,13 @@ class Edge;
 
 class Node;
 
+enum class NodeMarker : uint8_t {
+  ANONYMOUS = 0b00000000,
+  MATCH_BEGIN = 0b00000001,
+  MATCH_END = 0b00000010,
+  INVALID = 0b10000000,
+};
+
 class RegGraph {
 public:
   using NodePtr = List<Node>::Iter;
@@ -31,8 +38,6 @@ private:
 
   void give_up_nodes(RegGraph &other) { nodes.give_up_nodes(other.nodes); }
 
-  void merge_head(NodePtr node, RegGraph &other);
-
   std::pair<Edge, RegGraph::NodePtr> &get_first_edge();
 
   bool is_simple_graph();
@@ -43,16 +48,18 @@ private:
 
   bool is_simple_character_set_graph();
 
+  void merge_head(NodePtr node, RegGraph &other);
+
   void concatenat_graph_continue(RegGraph &&graph);
 
   void join_character_set_graph_continue(RegGraph &&graph);
-
-  RegGraph() : nodes{}, head{create_node()}, tail{create_node()} {}
 
 public:
   List<Node> nodes;
   NodePtr head;
   NodePtr tail;
+
+  RegGraph() : nodes{}, head{create_node()}, tail{create_node()} {}
 
   static RegGraph single_edge(Edge &&edge);
 
@@ -64,18 +71,33 @@ public:
   template<class GraphPtr>
   static RegGraph join_character_set_graph(GraphPtr begin, GraphPtr end);
 
+  NodePtr null_node() { return nodes.end(); }
+
   void repeat_graph(RepeatRange range);
 
   void character_set_complement();
 
+  void match_begin_unknown();
+
+  void match_tail_unknown();
+
   friend std::ostream &operator<<(std::ostream &stream, RegGraph &other);
+
+  RegGraph(const RegGraph &other) = delete;
+
+  RegGraph(RegGraph &&other) = default;
+
+  RegGraph &operator=(const RegGraph &other) = delete;
+
+  RegGraph &operator=(RegGraph &&other) = default;
 };
 
 class Node {
 public:
+  NodeMarker marker;
   std::vector<std::pair<Edge, RegGraph::NodePtr>> edges;
 
-  Node() = default;
+  Node() : marker{NodeMarker::ANONYMOUS}, edges{} {}
 
   void add_edge(Edge &&edge, RegGraph::NodePtr next);
 
@@ -95,18 +117,16 @@ enum class EdgeType {
   EMPTY,
   CONCATENATION,
   CHARACTER_SET,
-  REPERAT,
+  REPEAT,
 };
 
 class Edge {
 private:
-  Edge() : type{EdgeType::EMPTY}, null{} {}
-
   Edge(std::string value) : type{EdgeType::CONCATENATION}, string{value} {}
 
   Edge(CharacterSet set) : type{EdgeType::CHARACTER_SET}, set{set} {}
 
-  Edge(RepeatRange range) : type{EdgeType::REPERAT}, range{range} {}
+  Edge(RepeatRange range) : type{EdgeType::REPEAT}, range{range} {}
 
   void drop() {
     switch(type) {
@@ -125,7 +145,7 @@ private:
       case EdgeType::CONCATENATION:
         new(&string) std::string{other.string};
         break;
-      case EdgeType::REPERAT:
+      case EdgeType::REPEAT:
         range = other.range;
         break;
       case EdgeType::CHARACTER_SET:
@@ -143,7 +163,7 @@ private:
       case EdgeType::CONCATENATION:
         new(&string) std::string{std::move(other.string)};
         break;
-      case EdgeType::REPERAT:
+      case EdgeType::REPEAT:
         range = other.range;
         break;
       case EdgeType::CHARACTER_SET:
@@ -162,6 +182,8 @@ public:
     RepeatRange range;
     CharacterSet set;
   };
+
+  Edge() : type{EdgeType::EMPTY}, null{} {}
 
   static Edge empty() { return Edge{}; }
 
@@ -262,32 +284,6 @@ public:
   ~Edge() { drop(); }
 };
 
-inline void
-RegGraph::merge_head(NodePtr node, RegGraph &other) {
-    node->merge_node(*other.head);
-    other.head.delete_node();
-}
-
-inline std::pair<Edge, RegGraph::NodePtr> &RegGraph::get_first_edge() {
-  return head->edges[0];
-}
-
-inline bool RegGraph::is_simple_graph() {
-  return head->edges.size() == 1 && get_first_edge().second == tail;
-}
-
-inline bool RegGraph::is_simple_empty_graph() {
-  return is_simple_graph() && get_first_edge().first.is_empty();
-}
-
-inline bool RegGraph::is_simple_concatenation_graph() {
-  return is_simple_graph() && get_first_edge().first.is_concatenation();
-}
-
-inline bool RegGraph::is_simple_character_set_graph() {
-  return is_simple_graph() && get_first_edge().first.is_character_set();
-}
-
 template<class GraphPtr>
 inline RegGraph RegGraph::concatenat_graph(GraphPtr begin, GraphPtr end) {
   RegGraph graph = single_edge(Edge::empty());
@@ -311,8 +307,13 @@ RegGraph::join_character_set_graph(GraphPtr begin, GraphPtr end) {
   return graph;
 }
 
+inline void Node::add_edge(Edge &&edge, RegGraph::NodePtr next) {
+  edges.emplace_back(std::move(edge), next);
+}
+
 inline void Node::add_empty_edge(RegGraph::NodePtr next) {
   edges.emplace_back(Edge::empty(), next);
 }
 
-#endif // REGEX_AUTOMATA
+
+#endif // REGEX_REG_GRAPH

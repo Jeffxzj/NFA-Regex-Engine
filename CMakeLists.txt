@@ -15,5 +15,5 @@ add_executable(regex
         src/regex.cpp
         src/tokenizer.cpp
         src/parser.cpp
-        src/automata.cpp
+        src/reg_graph.cpp
 )
