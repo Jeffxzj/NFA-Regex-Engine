@@ -168,5 +168,4 @@ std::optional<std::string> Automata::run() {
   } else {
     return std::string{input.substr(best_match_start, best_match_end)};
   }
-
 }
