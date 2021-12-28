@@ -53,6 +53,7 @@ enum class TokenType {
   QUESTION_MARK,
   PERIOD,
   VERTICAL_BAR,
+  // stack top
 };
 
 class RegexToken {
