@@ -6,9 +6,6 @@ std::ostream & operator<<(std::ostream &stream, const CharacterSet &other) {
   for (int i = 0; i < 32; ++i) {
     if (other.has_char(i)) {
       switch (i) {
-        case '\0':
-          stream << "\\0";
-          break;
         case '\t':
           stream << "\\t";
           break;
@@ -30,14 +27,26 @@ std::ostream & operator<<(std::ostream &stream, const CharacterSet &other) {
       }
     }
   }
-  for (int i = 32; i < 127; ++i) {
+  for (int i = 32; i < 128; ++i) {
     if (other.has_char(i)) {
-      if (i == '\\') { stream << "\\\\"; }
-      else { stream << static_cast<char>(i); }
+      switch (i) {
+        case '\\':
+          stream << "\\\\";
+          break;
+        case '[':
+          stream << "\\[";
+          break;
+        case ']':
+          stream << "\\]";
+          break;
+        case '\127':
+          stream << "\\x127";
+          break;
+        default:
+          stream << static_cast<char>(i);
+          break;
+      }
     }
-  }
-  if (other.has_char(127)) {
-    stream << "\\x127";
   }
   return stream << ']';
 }

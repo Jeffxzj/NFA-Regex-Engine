@@ -7,6 +7,41 @@
 #include <iostream>
 
 
+#define regex_no_return __attribute__((noreturn))
+
+inline void regex_warn(const char *file, int line, const char *msg) {
+  std::cerr
+      << "Warn at file " << file << ", line " << line << ": "
+      << msg << std::endl;
+}
+
+#define regex_warn(msg) regex_warn(__FILE__, __LINE__, msg)
+
+inline regex_no_return void
+regex_abort(const char *file, int line, const char *msg) {
+  std::cerr
+      << "Abort at file " << file << ", line " << line << ": "
+      << msg << std::endl;
+
+  exit(1);
+}
+
+#define regex_abort(msg) regex_abort(__FILE__, __LINE__, msg)
+
+inline void
+regex_assert(const char *file, int line, bool result, const char *msg) {
+  if (!result) {
+    std::cerr
+        << "Assert failed at file " << file << ", line " << line << ": "
+        << msg << std::endl;
+
+    exit(1);
+  }
+}
+
+#define regex_assert(expr) regex_assert(__FILE__, __LINE__, expr, #expr)
+
+
 #define CASE_NUMERIC \
   '0':      case '1': case '2': case '3': case '4': \
   case '5': case '6': case '7': case '8': case '9'

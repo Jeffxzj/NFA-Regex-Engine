@@ -12,7 +12,7 @@ public:
   RegexTokenizer &tokenizer;
   RegGraph regex_graph;
 
-  bool build_graph();
+  std::optional<std::string> build_graph();
 
   Parser(RegexTokenizer &tokenizer) : tokenizer(tokenizer) {}
 };

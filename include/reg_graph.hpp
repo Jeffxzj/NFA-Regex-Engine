@@ -239,7 +239,7 @@ public:
       case TokenType::PERIOD:
         return character_set(CHARACTER_SET_ALL);
       default:
-        exit(1);
+        regex_abort("charater set initialized by wrong token type!");
     }
   }
 

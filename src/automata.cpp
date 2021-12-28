@@ -1,5 +1,7 @@
 #include "automata.hpp"
 
+#include "utility.hpp"
+
 
 // void Automata::extend_current() {
 //   std::vector<std::pair<RegGraph::NodePtr, size_t>> stack{};
@@ -53,7 +55,7 @@
 //   }
 // }
 
-std::optional<std::string> Automata::run() {
+std::optional<std::pair<size_t, size_t>> Automata::run() {
   stack.emplace_back(StackElem{
     .offset = 0,
     .node = graph.head,
@@ -131,8 +133,9 @@ std::optional<std::string> Automata::run() {
           break;
         }
         case EdgeType::CONCATENATION:
-          if (
-              input.substr(offset).rfind(edge.string) != std::string_view::npos
+           if (
+              input.substr(offset).rfind(edge.string, 0) !=
+              std::string_view::npos
           ) {
             stack.emplace_back(StackElem{
               .offset = offset + edge.string.size(),
@@ -156,7 +159,7 @@ std::optional<std::string> Automata::run() {
           }
           break;
         default:
-          exit(1);
+          regex_abort("unknown edge type");
       }
     } else {
       stack.pop_back();
@@ -164,8 +167,8 @@ std::optional<std::string> Automata::run() {
   }
 
   if (best_match_start < input.size()) {
-    return std::nullopt;
+    return std::make_pair(best_match_start, best_match_end);
   } else {
-    return std::string{input.substr(best_match_start, best_match_end)};
+    return std::nullopt;
   }
 }

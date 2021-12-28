@@ -48,7 +48,7 @@ void RegGraph::concatenat_graph_continue(RegGraph &&graph) {
 }
 
 void RegGraph::join_character_set_graph_continue(RegGraph &&graph) {
-  if (!graph.is_simple_character_set_graph()) { exit(1); }
+  regex_assert(graph.is_simple_character_set_graph());
 
   get_first_edge().first.set |=
       graph.get_first_edge().first.set;
@@ -108,21 +108,33 @@ void RegGraph::character_set_complement() {
 }
 
 void RegGraph::match_begin_unknown() {
-  auto node = create_node();
+  auto node0 = create_node();
+  auto node1 = create_node();
+  auto node2 = create_node();
 
-  node->add_edge(Edge::character_set(CHARACTER_SET_ALL), head);
-  head->add_edge(Edge::repeat(RepeatRange{0, 0}), node);
+  node0->add_empty_edge(node1);
+  node1->add_edge(Edge::character_set(CHARACTER_SET_ALL), node2);
+  node2->add_empty_edge(head);
 
-  head = node;
+  node2->add_empty_edge(node1);
+  node0->add_empty_edge(head);
+
+  head = node0;
 }
 
 void RegGraph::match_tail_unknown() {
-  auto node = create_node();
+  auto node0 = create_node();
+  auto node1 = create_node();
+  auto node2 = create_node();
 
-  tail->add_edge(Edge::character_set(CHARACTER_SET_ALL), node);
-  node->add_edge(Edge::repeat(RepeatRange{0, 0}), tail);
+  tail->add_empty_edge(node0);
+  node0->add_edge(Edge::character_set(CHARACTER_SET_ALL), node1);
+  node1->add_empty_edge(node2);
 
-  tail = node;
+  node1->add_empty_edge(node0);
+  tail->add_empty_edge(node2);
+
+  tail = node2;
 }
 
 std::ostream &operator<<(std::ostream &stream, RegGraph &other) {
@@ -132,10 +144,26 @@ std::ostream &operator<<(std::ostream &stream, RegGraph &other) {
     node_map.emplace(ptr, node_map.size());
   }
 
+  stream << "[GRAPH] size: " << node_map.size() << '\n';
+
   for (auto ptr = other.nodes.begin(); ptr != other.nodes.end(); ++ptr) {
-    stream << "NODE: " << node_map[ptr] << '\n';
+    if (ptr == other.head) {
+      stream << "NODE: head";
+    } else if (ptr == other.tail) {
+      stream << "NODE: tail";
+    } else {
+      stream << "NODE: " << node_map[ptr];
+    }
+    stream << ", size: " << ptr->edges.size() << '\n';
+
     for (auto &[edge, dest] : ptr->edges) {
-      stream << '\t' << node_map[dest] << '\t' << edge << '\n';
+      if (dest == other.head) {
+        stream << "    |=> head,\t" << edge << '\n';
+      } else if (dest == other.tail) {
+        stream << "    |=> tail,\t" << edge << '\n';
+      } else {
+        stream << "    |=> " << node_map[dest] << ",\t" << edge << '\n';
+      }
     }
   }
 

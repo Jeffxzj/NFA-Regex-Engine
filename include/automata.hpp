@@ -35,16 +35,19 @@ private:
   // void step();
 
   void set_match(size_t begin, size_t end) {
+    std::cout
+        << "match: " << begin << ", " << end
+        << ", " << input.substr(begin, end - begin) << std::endl;
     if (end - begin > best_match_end - best_match_start) {
       best_match_start = begin;
       best_match_end = end;
     }
   }
 
-  std::optional<std::string> run();
+  std::optional<std::pair<size_t, size_t>> run();
 
 public:
-  static std::optional<std::string>
+  static std::optional<std::pair<size_t, size_t>>
   accept(RegGraph &graph, std::string_view input) {
     return Automata{graph, input}.run();
   }

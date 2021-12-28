@@ -18,7 +18,7 @@ private:
 public:
   static std::optional<Regex> init(std::string_view regex);
 
-  std::optional<std::string> match(std::string_view input);
+  std::optional<std::pair<size_t, size_t>> match(std::string_view input);
 };
 
 

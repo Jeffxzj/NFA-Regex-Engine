@@ -8,7 +8,7 @@
 struct CharacterSet {
   std::array<uint8_t, 16> set;
 
-  constexpr explicit CharacterSet(uint8_t args...) : set{args} {}
+  constexpr CharacterSet(std::array<uint8_t, 16> set) : set{set} {}
 
   constexpr explicit CharacterSet(CharacterRange range) : set{} {
     for (int i = range.lower_bound; i <= range.upper_bound; ++i) {
@@ -41,7 +41,7 @@ struct CharacterSet {
   operator<<(std::ostream &stream, const CharacterSet &other);
 };
 
-static constexpr CharacterSet CHARACTER_SET_EMPTY{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_EMPTY{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -60,7 +60,7 @@ static constexpr CharacterSet CHARACTER_SET_EMPTY{
   0b00000000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_ALL{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_ALL{
   0b11111111, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b11111111, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b11111111, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -79,7 +79,7 @@ static constexpr CharacterSet CHARACTER_SET_ALL{
   0b11111111, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_UPPER{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_UPPER{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -98,7 +98,7 @@ static constexpr CharacterSet CHARACTER_SET_UPPER{
   0b00000000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_LOWER{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_LOWER{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -117,7 +117,7 @@ static constexpr CharacterSet CHARACTER_SET_LOWER{
   0b11100000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_ALPHA{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_ALPHA{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -136,7 +136,7 @@ static constexpr CharacterSet CHARACTER_SET_ALPHA{
   0b11100000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_DIGIT{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_DIGIT{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -155,7 +155,7 @@ static constexpr CharacterSet CHARACTER_SET_DIGIT{
   0b00000000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_XDIGIT{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_XDIGIT{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -174,7 +174,7 @@ static constexpr CharacterSet CHARACTER_SET_XDIGIT{
   0b00000000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_ALNUM{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_ALNUM{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -193,7 +193,7 @@ static constexpr CharacterSet CHARACTER_SET_ALNUM{
   0b11100000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_PUNCT{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_PUNCT{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -212,7 +212,7 @@ static constexpr CharacterSet CHARACTER_SET_PUNCT{
   0b00011110, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_BLANK{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_BLANK{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b01000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -231,7 +231,7 @@ static constexpr CharacterSet CHARACTER_SET_BLANK{
   0b00000000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static CharacterSet CHARACTER_SET_SPACE{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_SPACE{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b01111100, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -250,7 +250,7 @@ static CharacterSet CHARACTER_SET_SPACE{
   0b00000000, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_CONTRL{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_CONTRL{
   0b11111111, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b11111111, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b11111111, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -269,7 +269,7 @@ static constexpr CharacterSet CHARACTER_SET_CONTRL{
   0b00000001, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_GRAPH{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_GRAPH{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -288,7 +288,7 @@ static constexpr CharacterSet CHARACTER_SET_GRAPH{
   0b11111110, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_PRINT{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_PRINT{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
@@ -307,7 +307,7 @@ static constexpr CharacterSet CHARACTER_SET_PRINT{
   0b11111110, //  x   y   z   {   |   }   ~   DEL
 };
 
-static constexpr CharacterSet CHARACTER_SET_WORD{
+static constexpr std::array<uint8_t, 16> CHARACTER_SET_WORD{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB

@@ -9,22 +9,22 @@
 
 std::optional<Regex> Regex::init(std::string_view regex) {
   RegexTokenizer tokenizer{regex};
-  RegexTokenizer tokenizer_for_graph{tokenizer};
+  Parser parser{tokenizer};
 
-  while (auto token = tokenizer.next()) {
-    std::cout << token.value() << std::endl;
-  }
+  std::cout << "=========== [TOKENIZER ] ===========" << std::endl;
 
-  Parser parser{tokenizer_for_graph};
-  bool success = parser.build_graph();
-
-  if (success) {
-    return Regex{std::move(parser.regex_graph)};
-  } else {
+  if (auto error = parser.build_graph()) {
+    regex_warn(error->c_str());
     return std::nullopt;
+  } else {
+    std::cout << "=========== [  PARSER  ] ===========" << std::endl;
+    std::cout << parser.regex_graph;
+
+    return Regex{std::move(parser.regex_graph)};
   }
 }
 
-std::optional<std::string> Regex::match(std::string_view input) {
+std::optional<std::pair<size_t, size_t>> Regex::match(std::string_view input) {
+  std::cout << "=========== [ AUTOMATA ] ===========" << std::endl;
   return Automata::accept(graph, input);
 }
