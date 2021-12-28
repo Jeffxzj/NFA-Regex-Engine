@@ -2,6 +2,7 @@
 #define REGEX_TOKENIZER
 
 
+#include <cstdlib>
 #include <cstdint>
 #include <string_view>
 #include <string>
@@ -243,9 +244,7 @@ private:
   std::string_view regex;
   std::vector<char> stack;
   size_t index;
-  size_t parentheses_depth;
-  size_t braces_depth;
-  size_t brackets_depth;
+  bool debug;
 
   bool in_parentheses() { return !stack.empty() && stack.back() == '('; }
 
@@ -258,9 +257,6 @@ private:
   void clear() {
     stack.clear();
     index = regex.size();
-    parentheses_depth = 0;
-    braces_depth = 0;
-    brackets_depth = 0;
   }
 
   std::optional<RegexToken> error(const char *reason) {
@@ -268,10 +264,27 @@ private:
     return RegexToken::error(reason);
   }
 
+  RegexToken handle_error(RegexToken &&token) {
+    if (token.is_error()) { clear(); }
+    return std::move(token);
+  }
+
+  std::optional<RegexToken> handle_character_class();
+
+  std::optional<RegexToken> handle_braces();
+
+  std::optional<RegexToken> handle_brackets();
+
+  std::optional<RegexToken> handle_parentheses();
+
 public:
   explicit RegexTokenizer(std::string_view regex) :
-      regex(regex), stack{}, index(0), parentheses_depth{0},
-      braces_depth{0}, brackets_depth{0} {}
+      regex(regex), stack{}, index(0), debug{false}
+  {
+    debug =
+        std::getenv("REGEX_DEBUG") != nullptr ||
+        std::getenv("REGEX_TOKENIZER_DEBUG") != nullptr;
+  }
 
   std::optional<RegexToken> next();
 };

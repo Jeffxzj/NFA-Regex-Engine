@@ -56,6 +56,10 @@
 // }
 
 std::optional<std::pair<size_t, size_t>> Automata::run() {
+  if (debug) {
+    std::cout << "---------- [ AUTOMATA ] ----------" << std::endl;
+  }
+
   stack.emplace_back(StackElem{
     .offset = 0,
     .node = graph.head,

@@ -10,22 +10,20 @@ std::optional<std::string> Parser::build_graph() {
   bool match_begin = false;
   bool match_end = false;
   // bool right_of_bar = false;
-  
-  while (auto token = tokenizer.next()) {
-    std::cout << token.value() << std::endl;
-    switch (token->type) {
 
+  while (auto token = tokenizer.next()) {
+    switch (token->type) {
       case TokenType::ATOM:
       {
         RegGraph graph{};
-        
+
         if (graph_stack.back().first == TokenType::VERTICAL_BAR){
           graph_stack.emplace_back(token->type, std::vector<RegGraph>{});
           graph = RegGraph::single_edge(Edge::concanetation(token->string));
           graph_stack.back().second.emplace_back(std::move(graph));
           break;
-        } 
-        
+        }
+
         if (graph_stack.back().first == TokenType::LEFT_BRACKETS ||
             graph_stack.back().first == TokenType::LEFT_BRACKETS_NOT)
         {
@@ -46,14 +44,14 @@ std::optional<std::string> Parser::build_graph() {
           graph_stack.emplace_back(token->type, std::vector<RegGraph>{});
           break;
         } else {
-          // concatentate all the graphs on its left and move it to '|' layer 
+          // concatentate all the graphs on its left and move it to '|' layer
           auto &&top_vector = graph_stack.back().second;
           auto left_graph = RegGraph::concatenat_graph(top_vector.begin(), top_vector.end());
           top_vector.clear();
           graph_stack.emplace_back(token->type, std::vector<RegGraph>{});
           graph_stack.back().second.emplace_back(std::move(left_graph));
           break;
-        } 
+        }
       }
 
       case TokenType::LEFT_PARENTHESES:
@@ -85,7 +83,7 @@ std::optional<std::string> Parser::build_graph() {
           }
           break;
         }
-          
+
         return "";
       }
 
@@ -108,7 +106,7 @@ std::optional<std::string> Parser::build_graph() {
           graph_stack.pop_back();
           graph_stack.back().second.emplace_back(std::move(con_graph));
           break;
-        } 
+        }
 
         return "";
       }
@@ -124,13 +122,11 @@ std::optional<std::string> Parser::build_graph() {
          {m,n} at least m times, and no more than n times */
       case TokenType::LEFT_BRACES:
       {
-        // if it has preceding graph 
+        // if it has preceding graph
         if (!graph_stack.back().second.empty()) {
           std::vector<size_t> range_buf{};
           while (token->type != TokenType::RIGHT_BRACES) {
             if (token = tokenizer.next()) {
-              std::cout << token.value() << std::endl;
-
               if (token->type == TokenType::COMMA) {
                 range_buf.emplace_back(0);
               } else if (token->type == TokenType::NUMERIC) {
@@ -185,7 +181,7 @@ std::optional<std::string> Parser::build_graph() {
         }
         return "";
       }
-      
+
       case TokenType::QUESTION_MARK:
       {
         if (!graph_stack.back().second.empty()) {
@@ -218,7 +214,6 @@ std::optional<std::string> Parser::build_graph() {
       case TokenType::CHARACTER_CLASS_WORD:
       case TokenType::PERIOD:
       {
-        
         RegGraph graph = RegGraph::single_edge(Edge::character_set(token->type));
         graph_stack.back().second.emplace_back(std::move(graph));
         break;
@@ -240,7 +235,6 @@ std::optional<std::string> Parser::build_graph() {
   }
 
   if (graph_stack.back().first != TokenType::LEFT_PARENTHESES) {
-    std::cout<<"check | at the end"<<std::endl;
     RegGraph union_graph{};
     while (graph_stack.back().first != TokenType::LEFT_PARENTHESES) {
       if (!graph_stack.back().second.empty()) {
@@ -250,12 +244,12 @@ std::optional<std::string> Parser::build_graph() {
     }
     graph_stack.back().second.emplace_back(std::move(union_graph));
   }
-  
+
   // no vertical bar layer in '()'
   auto &&top_vector = graph_stack.back().second;
   auto con_graph = RegGraph::concatenat_graph(top_vector.begin(), top_vector.end());
   graph_stack.back().second.emplace_back(std::move(con_graph));
-  
+
   regex_graph = std::move(graph_stack.back().second.back());
 
   regex_graph.head->marker = NodeMarker::MATCH_BEGIN;
@@ -268,6 +262,10 @@ std::optional<std::string> Parser::build_graph() {
 
   if (!graph_stack.empty()) return "";
 
+  if (debug) {
+    std::cout << "---------- [  PARSER  ] ----------" << std::endl;
+    std::cout << regex_graph;
+  }
 
   return std::nullopt;
 }

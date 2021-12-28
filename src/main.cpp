@@ -91,29 +91,27 @@ void test_file(std::istream &stream) {
         std::string input = escape_string(buffer.substr(offset));
 
         std::cout << "========== [ MATCHING ] ==========" << std::endl;
-        if (expect_start != (size_t) -1) {
-          std::cout
-              << "expect start: " << expect_start
-              << ", expect size: " << expect_size
-              << ", " << make_escape(input) << std::endl;
-        } else {
-          std::cout << "expect no match, " << make_escape(input) << std::endl;
-        }
+        std::cout << make_escape(input) << std::endl;
         std::cout << std::endl;
 
+        std::cout << "---------- [  RESULT  ] ----------" << std::endl;
         if (auto match = regex->match(input)) {
-          std::cout << "---------- [  RESULT  ] ----------" << std::endl;
-
           auto &[start, end] = match.value();
           std::cout << "MATCH: " << start << ", " << end << ", ";
           std::cout << make_escape(input.substr(start, end - start));
           std::cout << std::endl;
           if (expect_start != start || expect_start + expect_size != end) {
+            std::cout << "expect no match" << std::endl;
+
             regex_warn("match error");
           }
         } else {
           std::cout << "NO_MATCH" << std::endl;
           if (expect_start != (size_t) -1) {
+          std::cout
+              << "expect start: " << expect_start
+              << ", expect size: " << expect_size << std::endl;
+
             regex_warn("match error");
           }
         }

@@ -25,22 +25,31 @@ private:
   std::vector<StackElem> stack;
   size_t best_match_start;
   size_t best_match_end;
+  bool debug;
 
   Automata(RegGraph &graph, std::string_view input) :
       graph{graph}, input{input}, stack{},
-      best_match_start{input.size()}, best_match_end{input.size()}
-  {}
+      best_match_start{input.size()}, best_match_end{input.size()},
+      debug{false}
+  {
+    debug =
+        std::getenv("REGEX_DEBUG") != nullptr ||
+        std::getenv("REGEX_AUTOMATA_DEBUG") != nullptr;
+  }
 
   // void extend_current();
 
   // void step();
 
   void set_match(size_t begin, size_t end) {
-    std::cout
-        << "match: " << begin << ", " << end
-        << ", "
-        << make_escape(std::string(input.substr(begin, end - begin)))
-        << std::endl;
+    if (debug) {
+      std::cout
+          << "match: " << begin << ", " << end
+          << ", "
+          << make_escape(std::string(input.substr(begin, end - begin)))
+          << std::endl;
+    }
+
     if (end - begin > best_match_end - best_match_start) {
       best_match_start = begin;
       best_match_end = end;
