@@ -24,7 +24,7 @@ static char escape_char(char origin) {
 std::ostream &operator<<(std::ostream &stream, const RegexToken &other) {
   switch (other.type) {
     case TokenType::ATOM:
-      return stream << "ATOM: " << other.string;
+      return stream << "ATOM: " << make_escape(other.string);
     case TokenType::ERROR:
       return stream << "ERROR: " << other.string;
     case TokenType::LEFT_PARENTHESES:
@@ -253,14 +253,14 @@ break_braces:
         break;
       } else {
         return TokenType::PERIOD;
-      }      
+      }
     case '|':
       if (in_brackets()) {
         buffer.push_back(c);
         break;
       } else {
         return TokenType::VERTICAL_BAR;
-      }      
+      }
     case '\\':
       if (finish()) {
         return error("escape at the end of expression");

@@ -77,6 +77,9 @@ void RegGraph::repeat_graph(RepeatRange range) {
     tail->add_empty_edge(new_tail);
   } else {
     // bounded loop, we need a stack to track loop count
+
+    // todo: optimize for simple cases
+
     tail->add_edge(Edge::repeat(range), head);
     new_head->add_edge(Edge::enter_loop(), head);
     tail->add_edge(Edge::exit_loop(range), new_tail);
@@ -185,7 +188,7 @@ std::ostream &operator<<(std::ostream &stream, const Edge &other) {
     case EdgeType::EMPTY:
       return stream << "EMPTY";
     case EdgeType::CONCATENATION:
-      return stream << "CONCATENATION: " << other.string;
+      return stream << "CONCATENATION: " << make_escape(other.string);
     case EdgeType::CHARACTER_SET:
       return stream << "CHARACTER_SET: " << other.set;
     case EdgeType::REPEAT:

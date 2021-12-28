@@ -5,11 +5,12 @@
 #include <utility>
 #include <cstdint>
 #include <iostream>
+#include <iomanip>
 
 
 #define regex_no_return __attribute__((noreturn))
 
-inline void regex_warn(const char *file, int line, const char *msg) {
+inline void regex_warn(const char *file, int line, std::string msg) {
   std::cerr
       << "Warn at file " << file << ", line " << line << ": "
       << msg << std::endl;
@@ -18,7 +19,7 @@ inline void regex_warn(const char *file, int line, const char *msg) {
 #define regex_warn(msg) regex_warn(__FILE__, __LINE__, msg)
 
 inline regex_no_return void
-regex_abort(const char *file, int line, const char *msg) {
+regex_abort(const char *file, int line, std::string msg) {
   std::cerr
       << "Abort at file " << file << ", line " << line << ": "
       << msg << std::endl;
@@ -29,7 +30,7 @@ regex_abort(const char *file, int line, const char *msg) {
 #define regex_abort(msg) regex_abort(__FILE__, __LINE__, msg)
 
 inline void
-regex_assert(const char *file, int line, bool result, const char *msg) {
+regex_assert(const char *file, int line, bool result, std::string msg) {
   if (!result) {
     std::cerr
         << "Assert failed at file " << file << ", line " << line << ": "
@@ -96,6 +97,67 @@ struct RepeatRange {
 
   bool in_range(size_t value) const {
     return in_lower_range(value) && in_upper_range(value);
+  }
+};
+
+template<class T>
+struct Escape {
+};
+
+template<class T>
+Escape<T> make_escape(const T &other) { return Escape<T>{other}; }
+
+template<>
+struct Escape<char> {
+  const char &c;
+
+  friend std::ostream &operator<<(std::ostream &stream, const Escape &other) {
+    const char &c = other.c;
+
+
+
+    if (c >= 32) {
+      switch (c) {
+        case '\\':
+          return stream << "\\\\";
+        case '\x7f':
+          return stream << "\\x7f";
+        default:
+          return stream << c;
+      }
+    } else if (c >= 0) {
+      switch (c) {
+        case '\t':
+          return stream << "\\t";
+        case '\n':
+          return stream << "\\n";
+        case '\v':
+          return stream << "\\v";
+        case '\f':
+          return stream << "\\t";
+        case '\r':
+          return stream << "\\r";
+        default:
+          stream
+              << "\\x" << std::setw(2) << std::hex << std::setfill('0')
+              << static_cast<int>(c)
+              << std::setw(0) << std::dec << std::setfill(' ');
+          return stream;
+      }
+    } else {
+      regex_warn("meet none ascii");
+      return stream;
+    }
+  }
+};
+
+template<>
+struct Escape<std::string> {
+  const std::string &string;
+
+  friend std::ostream &operator<<(std::ostream &stream, const Escape &other) {
+    for (const char &c : other.string) { stream << make_escape(c); }
+    return stream;
   }
 };
 

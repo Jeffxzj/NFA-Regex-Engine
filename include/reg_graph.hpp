@@ -293,7 +293,7 @@ public:
 };
 
 template<class GraphPtr>
-inline RegGraph RegGraph::concatenat_graph(GraphPtr begin, GraphPtr end) {
+RegGraph RegGraph::concatenat_graph(GraphPtr begin, GraphPtr end) {
   RegGraph graph = single_edge(Edge::empty());
 
   for (auto ptr = begin; ptr != end; ++ptr) {
@@ -304,8 +304,7 @@ inline RegGraph RegGraph::concatenat_graph(GraphPtr begin, GraphPtr end) {
 }
 
 template<class GraphPtr>
-inline RegGraph
-RegGraph::join_character_set_graph(GraphPtr begin, GraphPtr end) {
+RegGraph RegGraph::join_character_set_graph(GraphPtr begin, GraphPtr end) {
   RegGraph graph = single_edge(Edge::character_set(CHARACTER_SET_EMPTY));
 
   for (auto ptr = begin; ptr != end; ++ptr) {

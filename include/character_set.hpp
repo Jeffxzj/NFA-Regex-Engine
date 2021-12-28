@@ -38,7 +38,15 @@ struct CharacterSet {
   }
 
   friend std::ostream &
-  operator<<(std::ostream &stream, const CharacterSet &other);
+  operator<<(std::ostream &stream, const CharacterSet &other) {
+    stream << '[';
+    for (int i = 0; i < 128; ++i) {
+      if (other.has_char(i)) {
+        stream << make_escape(static_cast<char>(i));
+      }
+    }
+    return stream << ']';
+  }
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_EMPTY{

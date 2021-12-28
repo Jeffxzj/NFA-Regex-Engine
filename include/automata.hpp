@@ -38,7 +38,9 @@ private:
   void set_match(size_t begin, size_t end) {
     std::cout
         << "match: " << begin << ", " << end
-        << ", " << input.substr(begin, end - begin) << std::endl;
+        << ", "
+        << make_escape(std::string(input.substr(begin, end - begin)))
+        << std::endl;
     if (end - begin > best_match_end - best_match_start) {
       best_match_start = begin;
       best_match_end = end;

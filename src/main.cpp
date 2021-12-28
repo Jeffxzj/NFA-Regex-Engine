@@ -1,25 +1,162 @@
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <sstream>
+#include <filesystem>
+#include <optional>
 
 #include "utility.hpp"
 #include "regex.hpp"
 
 
-int main(int argc, const char **argv) {
-  if (argc < 3) { regex_abort("need three argument"); }
-  if (auto regex = Regex::init(argv[1])) {
-    std::string input = argv[2];
-    if (auto match = regex->match(input)) {
-      std::cout << "=========== [  RESULT  ] ===========" << std::endl;
+std::string escape_string(std::string string) {
+  std::string result{};
 
-      auto &[start, end] = match.value();
-      std::cout
-          << "MATCH: " << start << ", " << end << ", "
-          << input.substr(start, end - start) << std::endl;
+  for (size_t i = 0; i < string.size(); ++i) {
+    if (i + 1 < string.size() && string[i] == '\\' && string[i + 1] == 'n') {
+      result.push_back('\n');
+      ++i;
     } else {
-      std::cout << "NO_MATCH" << std::endl;
+      result.push_back(string[i]);
     }
-  } else {
-    regex_abort("error met while parsing regex expression");
+  }
+
+  return result;
+}
+
+void test_file(std::istream &stream) {
+  std::string buffer{};
+  std::optional<Regex> regex{std::nullopt};
+
+  while (std::getline(stream, buffer)) {
+    if (buffer.empty()) { continue; }
+
+    if (buffer[0] != '\t') {
+      if (auto pos = buffer.find('\t') != std::string::npos) {
+        auto marker = buffer.substr(0, pos);
+
+        auto regex_string = escape_string(buffer.substr(pos + 1));
+
+        std::cout
+            << "+---------------------------------------" << std::endl
+            << "| TESTING REGEX: " << make_escape(regex_string)
+            << std::endl
+            << "+---------------------------------------" << std::endl
+            << std::endl;
+
+        regex = Regex::init(regex_string);
+
+        switch (marker[0]) {
+          case 'E':
+            if (regex) {
+              regex_warn("expect parse failure");
+              regex = std::nullopt;
+            }
+            break;
+          case 'V':
+            if (!regex) {
+              regex_warn("expect parse success");
+            }
+            break;
+          default:
+            regex_warn("unknown marker");
+            break;
+        }
+
+        std::cout << std::endl;
+      } else {
+        regex_warn("invalid format");
+      }
+    } else {
+      if (regex) {
+        size_t expect_start = -1, expect_size = -1;
+        size_t offset = 1;
+
+        auto pos = buffer.find('\t', offset);
+        if (pos != std::string::npos) {
+          if (buffer[offset] != '-') {
+            expect_start = std::stoi(buffer.substr(offset, pos - offset));
+          }
+          offset = pos + 1;
+        }
+
+        pos = buffer.find('\t', offset);
+        if (pos != std::string::npos) {
+          if (buffer[offset] != '-') {
+            expect_size = std::stoi(buffer.substr(offset, pos - offset));
+          }
+          offset = pos + 1;
+        }
+
+        std::string input = escape_string(buffer.substr(offset));
+
+        std::cout << "========== [ MATCHING ] ==========" << std::endl;
+        if (expect_start != (size_t) -1) {
+          std::cout
+              << "expect start: " << expect_start
+              << ", expect size: " << expect_size
+              << ", " << make_escape(input) << std::endl;
+        } else {
+          std::cout << "expect no match, " << make_escape(input) << std::endl;
+        }
+        std::cout << std::endl;
+
+        if (auto match = regex->match(input)) {
+          std::cout << "---------- [  RESULT  ] ----------" << std::endl;
+
+          auto &[start, end] = match.value();
+          std::cout << "MATCH: " << start << ", " << end << ", ";
+          std::cout << make_escape(input.substr(start, end - start));
+          std::cout << std::endl;
+          if (expect_start != start || expect_start + expect_size != end) {
+            regex_warn("match error");
+          }
+        } else {
+          std::cout << "NO_MATCH" << std::endl;
+          if (expect_start != (size_t) -1) {
+            regex_warn("match error");
+          }
+        }
+
+        std::cout << std::endl;
+      }
+    }
+  }
+}
+
+int main(int argc, const char **argv) {
+  if (argc < 2) { regex_abort("need three argument"); }
+
+  std::string test_dir = argv[1];
+
+  if (!std::filesystem::is_directory(test_dir)) {
+    regex_abort(test_dir.append(" is not a directory"));
+  }
+
+  bool has_file = false;
+
+  for (auto &item : std::filesystem::directory_iterator{test_dir}) {
+    try {
+      if (item.is_regular_file() && item.path().extension() == ".txt") {
+        std::ifstream file{item.path()};
+
+        has_file = true;
+
+        std::cout << "########################################" << std::endl;
+        std::cout << "# TESTING FILE: " << item.path() << std::endl;
+        std::cout << "########################################" << std::endl;
+        std::cout << std::endl;
+
+        test_file(file);
+      }
+    } catch (...) {
+      continue;
+    }
+  }
+
+  if (!has_file) {
+    regex_warn(
+      std::string("no text file found in directory ").append(test_dir)
+    );
   }
 }
