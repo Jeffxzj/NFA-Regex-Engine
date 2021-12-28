@@ -135,7 +135,7 @@ public:
 
     for (size_t i = 0; i < name.size(); ++i) {
       size_t digit = name[i] - '0';
-      if (value > (value_max - digit) / 10) {
+      if (value >= (value_max - digit) / 10) {
         return error("number exceeds maximum boundary");
       } else {
         value = value * 10 + digit;

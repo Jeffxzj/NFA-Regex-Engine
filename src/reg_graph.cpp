@@ -79,7 +79,7 @@ void RegGraph::repeat_graph(RepeatRange range) {
     // bounded loop, we need a stack to track loop count
     tail->add_edge(Edge::repeat(range), head);
     new_head->add_edge(Edge::enter_loop(), head);
-    tail->add_edge(Edge::exit_loop(), new_tail);
+    tail->add_edge(Edge::exit_loop(range), new_tail);
   }
   head = new_head;
   tail = new_tail;
@@ -154,7 +154,17 @@ std::ostream &operator<<(std::ostream &stream, RegGraph &other) {
     } else {
       stream << "NODE: " << node_map[ptr];
     }
-    stream << ", size: " << ptr->edges.size() << '\n';
+    switch (ptr->marker) {
+      case NodeMarker::MATCH_BEGIN:
+        stream << ", MATCH_BEGIN";
+        break;
+      case NodeMarker::MATCH_END:
+        stream << ", MATCH_END";
+        break;
+      default:
+        break;
+    }
+    stream << '\n';
 
     for (auto &[edge, dest] : ptr->edges) {
       if (dest == other.head) {
@@ -181,7 +191,7 @@ std::ostream &operator<<(std::ostream &stream, const Edge &other) {
     case EdgeType::REPEAT:
       return stream << "REPEAT: " << other.range;
     case EdgeType::ENTER_LOOP:
-      return stream << "ENTER_LOOP: " << other.range;
+      return stream << "ENTER_LOOP";
     case EdgeType::EXIT_LOOP:
       return stream << "EXIT_LOOP: " << other.range;
     default:

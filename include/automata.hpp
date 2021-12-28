@@ -17,6 +17,7 @@ private:
     size_t index;
     std::vector<size_t> loop;
     size_t match_start;
+    bool finish = false;
   };
 
   RegGraph &graph;

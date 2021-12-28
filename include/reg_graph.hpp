@@ -104,14 +104,7 @@ public:
 
   void add_empty_edge(RegGraph::NodePtr next);
 
-  void merge_node(Node &other) {
-    std::move(
-      std::begin(other.edges),
-      std::end(other.edges),
-      std::back_inserter(edges)
-    );
-    other.edges.clear();
-  }
+  void merge_node(Node &other);
 };
 
 enum class EdgeType {
@@ -129,7 +122,7 @@ private:
 
   Edge(CharacterSet set) : type{EdgeType::CHARACTER_SET}, set{set} {}
 
-  Edge(RepeatRange range) : type{EdgeType::REPEAT}, range{range} {}
+  Edge(EdgeType type, RepeatRange range) : type{type}, range{range} {}
 
   Edge(EdgeType type) : type{type}, null{} {}
 
@@ -151,6 +144,7 @@ private:
         new(&string) std::string{other.string};
         break;
       case EdgeType::REPEAT:
+      case EdgeType::EXIT_LOOP:
         range = other.range;
         break;
       case EdgeType::CHARACTER_SET:
@@ -169,6 +163,7 @@ private:
         new(&string) std::string{std::move(other.string)};
         break;
       case EdgeType::REPEAT:
+      case EdgeType::EXIT_LOOP:
         range = other.range;
         break;
       case EdgeType::CHARACTER_SET:
@@ -194,7 +189,13 @@ public:
 
   static Edge enter_loop() { return Edge{EdgeType::ENTER_LOOP}; }
 
-  static Edge exit_loop() { return Edge{EdgeType::EXIT_LOOP}; }
+  static Edge exit_loop(RepeatRange range) {
+    return Edge{EdgeType::EXIT_LOOP, range};
+  }
+
+  static Edge repeat(RepeatRange range) {
+    return Edge{EdgeType::REPEAT, range};
+  }
 
   static Edge concanetation(std::string value) { return Edge{value}; }
 
@@ -270,8 +271,6 @@ public:
     }
   }
 
-  static Edge repeat(RepeatRange range) { return Edge{range}; }
-
   friend std::ostream &operator<<(std::ostream &stream, const Edge &other);
 
   Edge(const Edge &other) { copy(other); }
@@ -322,6 +321,15 @@ inline void Node::add_edge(Edge &&edge, RegGraph::NodePtr next) {
 
 inline void Node::add_empty_edge(RegGraph::NodePtr next) {
   edges.emplace_back(Edge::empty(), next);
+}
+
+inline void Node::merge_node(Node &other) {
+  std::move(
+    std::begin(other.edges),
+    std::end(other.edges),
+    std::back_inserter(edges)
+  );
+  other.edges.clear();
 }
 
 

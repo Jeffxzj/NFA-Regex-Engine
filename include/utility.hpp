@@ -91,7 +91,7 @@ struct RepeatRange {
   }
 
   bool in_upper_range(size_t value) const {
-    return upper_bound != 0 && value < upper_bound;
+    return upper_bound == 0 || value < upper_bound;
   }
 
   bool in_range(size_t value) const {

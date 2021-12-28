@@ -10,7 +10,7 @@ int main(int argc, const char **argv) {
   if (auto regex = Regex::init(argv[1])) {
     std::string input = argv[2];
     if (auto match = regex->match(input)) {
-      std::cout << "========== [  RESULT  ] ==========" << std::endl;
+      std::cout << "=========== [  RESULT  ] ===========" << std::endl;
 
       auto &[start, end] = match.value();
       std::cout

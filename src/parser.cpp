@@ -125,11 +125,16 @@ std::optional<std::string> Parser::build_graph() {
         if (!graph_stack.empty()) {
           std::vector<size_t> range_buf{};
           while (token->type != TokenType::RIGHT_BRACES) {
-            token = tokenizer.next();
-            if (token->type == TokenType::COMMA) {
-              range_buf.emplace_back(0);
-            } else if (token->type == TokenType::NUMERIC) {
-              range_buf.emplace_back(token->value);
+            if (token = tokenizer.next()) {
+              std::cout << token.value() << std::endl;
+
+              if (token->type == TokenType::COMMA) {
+                range_buf.emplace_back(0);
+              } else if (token->type == TokenType::NUMERIC) {
+                range_buf.emplace_back(token->value);
+              }
+            } else {
+              return "";
             }
           }
           RepeatRange range;
