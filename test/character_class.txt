@@ -6,7 +6,11 @@ V	[.]
 
 V	[^.]
 
+V	a | [a-z]
+
 E	[b-a]
+
+V	[a-]
 
 E	[a-[:alpha:]]
 
@@ -17,6 +21,32 @@ V	[^[:alpha:]f]
 V	[^^]
 	0	1	^
 
-V	[^a-z]
+V	[a-z]
 	0	1	a
 	-	-	?\n?
+
+V	[:upper:]
+
+V	[:lower:]
+
+V	[:alpha:]
+
+V	[:digit:]
+
+V	[:xdigit:]
+
+V	[:alnum:]
+
+V	[:punct:]
+
+V	[:blank:]
+
+V	[:space:]
+
+V	[:cntrl:]
+
+V	[:graph:]
+
+V	[:print:]
+
+V	[:word:]

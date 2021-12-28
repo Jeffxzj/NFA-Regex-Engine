@@ -114,12 +114,8 @@ struct Escape<char> {
   friend std::ostream &operator<<(std::ostream &stream, const Escape &other) {
     const char &c = other.c;
 
-
-
     if (c >= 32) {
       switch (c) {
-        case '\\':
-          return stream << "\\\\";
         case '\x7f':
           return stream << "\\x7f";
         default:

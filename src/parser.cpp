@@ -3,17 +3,6 @@
 #include "reg_graph.hpp"
 
 
-void print_stack(std::vector<std::vector<RegexToken>> &stack) {
-
-  for (auto buf:stack){
-    for (auto token:buf) {
-      std::cout<<token;
-    }
-    std::cout<<std::endl;
-  }
-
-}
-
 std::optional<std::string> Parser::build_graph() {
 
   GraphStack graph_stack;
@@ -106,7 +95,6 @@ std::optional<std::string> Parser::build_graph() {
         RegGraph union_graph{};
         while (graph_stack.back().first != TokenType::LEFT_PARENTHESES) {
           if (!graph_stack.back().second.empty()) {
-            std::cout<<"join"<<std::endl;
             union_graph = RegGraph::join_graph(std::move(union_graph), std::move(graph_stack.back().second.back()));
           }
           graph_stack.pop_back();
