@@ -8,13 +8,13 @@ V	[^.]
 
 V	a | [a-z]
 
-E	[b-a]
+I	[b-a]
 
 V	[a-]
 
-E	[a-[:alpha:]]
+I	[a-[:alpha:]]
 
-E	[a-[:digit:]]
+I	[a-[:digit:]]
 
 V	[^[:alpha:]f]
 

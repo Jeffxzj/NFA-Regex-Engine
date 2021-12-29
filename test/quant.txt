@@ -10,7 +10,7 @@ V	a{5}?
 V	a{,5}
 V	a{,5}?
 V	a{5,7}
-V	abc+|def+	
+V	abc+|def+
 V	a*{4}
 V	(a*){4}
 V	(){0,1}
@@ -22,6 +22,6 @@ V	^+
 V	(a+a+)+b
 V	(a+?a+?)+?b
 V	[bc]*(cd)+
-E	*a
-E	?a
-E	+a
+I	*a
+I	?a
+I	+a

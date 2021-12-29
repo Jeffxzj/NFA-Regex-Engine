@@ -24,6 +24,40 @@ std::string escape_string(std::string string) {
   return result;
 }
 
+void test_match(
+    Regex &regex, std::string input,
+    size_t expect_start, size_t expect_size
+) {
+  std::cout << "========== [ MATCHING ] ==========" << std::endl;
+  std::cout << make_escape(input) << std::endl;
+  std::cout << std::endl;
+
+  if (auto match = regex.match(input)) {
+    std::cout << "---------- [  RESULT  ] ----------" << std::endl;
+    auto &[start, end] = match.value();
+    std::cout << "MATCH: " << start << ", " << end << ", ";
+    std::cout << make_escape(input.substr(start, end - start));
+    std::cout << std::endl;
+    if (expect_start != start || expect_start + expect_size != end) {
+      std::cout << "expect no match" << std::endl;
+
+      regex_warn("match error");
+    }
+  } else {
+    std::cout << "---------- [  RESULT  ] ----------" << std::endl;
+    std::cout << "NO_MATCH" << std::endl;
+    if (expect_start != (size_t) -1) {
+    std::cout
+        << "expect start: " << expect_start
+        << ", expect size: " << expect_size << std::endl;
+
+      regex_warn("match error");
+    }
+  }
+
+  std::cout << std::endl;
+}
+
 void test_file(std::istream &stream) {
   std::string buffer{};
   std::optional<Regex> regex{std::nullopt};
@@ -46,8 +80,9 @@ void test_file(std::istream &stream) {
 
         regex = Regex::init(regex_string);
 
+
         switch (marker[0]) {
-          case 'E':
+          case 'I':
             if (regex) {
               regex_warn("expect parse failure");
               regex = std::nullopt;
@@ -61,6 +96,25 @@ void test_file(std::istream &stream) {
           default:
             regex_warn("unknown marker");
             break;
+        }
+
+        bool match_empty = false;
+
+        if (marker.size() > 1) {
+          switch (marker[1]) {
+            case 'E':
+              match_empty = true;
+              break;
+            default:
+              regex_warn("unknown marker");
+              break;
+          }
+        }
+
+        if (match_empty) {
+          test_match(regex.value(), "", 0, 0);
+        } else {
+          test_match(regex.value(), "", -1, -1);
         }
 
         std::cout << std::endl;
@@ -90,33 +144,7 @@ void test_file(std::istream &stream) {
 
         std::string input = escape_string(buffer.substr(offset));
 
-        std::cout << "========== [ MATCHING ] ==========" << std::endl;
-        std::cout << make_escape(input) << std::endl;
-        std::cout << std::endl;
-
-        std::cout << "---------- [  RESULT  ] ----------" << std::endl;
-        if (auto match = regex->match(input)) {
-          auto &[start, end] = match.value();
-          std::cout << "MATCH: " << start << ", " << end << ", ";
-          std::cout << make_escape(input.substr(start, end - start));
-          std::cout << std::endl;
-          if (expect_start != start || expect_start + expect_size != end) {
-            std::cout << "expect no match" << std::endl;
-
-            regex_warn("match error");
-          }
-        } else {
-          std::cout << "NO_MATCH" << std::endl;
-          if (expect_start != (size_t) -1) {
-          std::cout
-              << "expect start: " << expect_start
-              << ", expect size: " << expect_size << std::endl;
-
-            regex_warn("match error");
-          }
-        }
-
-        std::cout << std::endl;
+        test_match(regex.value(), input, expect_start, expect_size);
       }
     }
   }
