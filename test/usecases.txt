@@ -12,17 +12,10 @@ V	[A-Fa-f0-9]{64}
 	0	64	eda4762b2eced5ac523c9a812c59658b1b3f2b4f7d16ec67f1dee8e548aac549
 	-	-	eda4762b2xced5ac523c9a812c59658b1b3f2b4f7d16ec67f1dee8e548aac549
 
-V	<tag>[^<]*</tag>
-
-
-V	<[\s]*tag[^>]*>[^<]*<[\s]*/[\s]*tag[\s]*>
-
-V	^(https?:\/\/)?([\da-z.\-]+)\.([a-z.]{2,6})([\/\w \.\-]*)*\/?$
+V	^(https?:\/\/)?([\da-z.\-]+)\.([a-z.]{2,6})([\/[:alpha:]\.\-]*)*\/?$
 	0	18	https://google.com
-	0	42	http://github.com
+	0	17	http://github.com
 	0	25	www.baidu.com/image/tieba
-
-V 	<script>alert('XSS')</script>
 
 V 	\0\t\n\r\v\f\\
 
@@ -37,3 +30,4 @@ VE	^([0369]|[258][0369]*[147]|[147]([0369]|[147][0369]*[258])*[258]|[258][0369]*
 	0	9	111111111
 	0	9	123456789
 	-	-	100000000
+	0	9	333333333

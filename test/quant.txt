@@ -1,72 +1,59 @@
 V	.
 	0	1	hello\{?+*}
 
-V	a*
-	0	1	a ba baa aaa ba b
+VE	a*
+	9	3	a ba baa aaa ba b
 
 V	a+
+	9	3	a ba baa aaa ba b
+
+VE	a?
 	0	1	a ba baa aaa ba b
 
 VE	ba?
-	0	1	ba b a
+	2	2	a ba baa aaa ba b
 
 V	a*?
-	0	1	a aa aaa aaaa
+	9	4	a aa aaa aaaa
 
 V	a+?
-	0	1	a aa aaa aaaa
+	9	4	a aa aaa aaaa
 
 V	a??
 	0	1	a aa aaa aaaa
 
 V	a{3}
-	0	3	a aa aaa aaaa
+	5	3	a aa aaa aaaa
 
 V	a{3}?
-	0	3	a aa aaa aaaa
+	5	3	a aa aaa aaaa
 
 V	a{3,}
-	0	5	a aa aaa aaaaaa
+	9	6	a aa aaa aaaaaa
 
 V	a{3,}?
-	0	3	a aa aaa aaaaaa
-
-V	a{,3}
-	0	3	a aa aaa aaaaaa
-
-V	a{,3}?
-	
+	5	3	a aa aaa aaaaaa
 
 V	a{3,6}
-	0	6	a aa aaa aaaa aaaaaaaaaa
+	14	6	a aa aaa aaaa aaaaaaaaaa
 
 V	abc+|def+
-	0	4	xyabcchellodeffqfdeff
+	2	4	xyabcchellodeffqfdeff
+
+V	abc|xy
+	7	3	qq:xyz-abc	
 
 
 V	(a*){4}
-	0	6	xabcdefaaaa aaaaa aaaaaa
+	18	6	xabcdefaaaa aaaaa aaaaaa
 
 V	(){0,1}
 
 
-V	(){1,2}
-
-V	()+
-
-V	(a*?)*
-
-V	^(a*)*$
-
-V	^+
-
-V	(a+a+)+b
-
-V	(a+?a+?)+?b
-
-V	[bc]*(cd)+
 
 I	a*{4}
+
+I	a{,3}
 
 I	*a
 
