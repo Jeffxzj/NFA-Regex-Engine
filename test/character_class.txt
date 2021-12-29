@@ -1,10 +1,12 @@
-V	[]
+I	[]
 
-V	[^]
+I	[^]
 
 V	[.]
+	0	1	a.bc.xyz.
 
 V	[^.]
+	0	1	a.bc.xyz.
 
 V	a | [a-z]
 
@@ -25,28 +27,40 @@ V	[a-z]
 	0	1	a
 	-	-	?\n?
 
-V	[:upper:]
+V	[[:upper:]]
+	0	1	ABCabcDEF
 
-V	[:lower:]
+V	[[:lower:]]
+	0	1	ABCabcDEF
 
-V	[:alpha:]
+V	[[:alpha:]]
+	0	1	hello, world.
 
-V	[:digit:]
+V	[[:digit:]]
+	0	1	one: 1, two: 2
 
-V	[:xdigit:]
+V	[[:xdigit:]]
 
-V	[:alnum:]
+V	[[:alnum:]]
+	0	1	1st, 2nd, 3rd.
 
-V	[:punct:]
+V	[[:punct:]]
+	0	1	hello, regex user!
 
-V	[:blank:]
+V	[[:blank:]]
+	0	1	a b	c
 
-V	[:space:]
+V	[[:space:]]
+	0	1	any whitespace character
 
-V	[:cntrl:]
 
-V	[:graph:]
+V	[[:graph:]]
+	0	1	A|m0st éverything goes.
 
-V	[:print:]
+V	[[:print:]]
+	0	1	A|m0st éverything goes.
 
-V	[:word:]
+V	[[:word:]]
+	0	1	any word_ character
+
+V	[[:cntrl:]]	

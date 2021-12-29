@@ -1,27 +1,75 @@
 V	.
+	0	1	hello\{?+*}
+
 V	a*
+	0	1	a ba baa aaa ba b
+
 V	a+
-V	a?
+	0	1	a ba baa aaa ba b
+
+VE	ba?
+	0	1	ba b a
+
 V	a*?
+	0	1	a aa aaa aaaa
+
 V	a+?
+	0	1	a aa aaa aaaa
+
 V	a??
-V	a{5}
-V	a{5}?
-V	a{,5}
-V	a{,5}?
-V	a{5,7}
+	0	1	a aa aaa aaaa
+
+V	a{3}
+	0	3	a aa aaa aaaa
+
+V	a{3}?
+	0	3	a aa aaa aaaa
+
+V	a{3,}
+	0	5	a aa aaa aaaaaa
+
+V	a{3,}?
+	0	3	a aa aaa aaaaaa
+
+V	a{,3}
+	0	3	a aa aaa aaaaaa
+
+V	a{,3}?
+	
+
+V	a{3,6}
+	0	6	a aa aaa aaaa aaaaaaaaaa
+
 V	abc+|def+
-V	a*{4}
+	0	4	xyabcchellodeffqfdeff
+
+
 V	(a*){4}
+	0	6	xabcdefaaaa aaaaa aaaaaa
+
 V	(){0,1}
+
+
 V	(){1,2}
+
 V	()+
+
 V	(a*?)*
+
 V	^(a*)*$
+
 V	^+
+
 V	(a+a+)+b
+
 V	(a+?a+?)+?b
+
 V	[bc]*(cd)+
+
+I	a*{4}
+
 I	*a
+
 I	?a
+
 I	+a

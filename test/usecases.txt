@@ -1,16 +1,26 @@
 V	^([a-z0-9_\.\-]+)@([\da-z\.\-]+)\.([a-z\.]{2,5})$
+	0	14	jeffxzj@qq.com
 
-V	employ(|er|ee|ment|ing|able)
+V	employ(er|ee|ment|ing|able)
+	0	10	employer employment employee employing employable
 
 V	[a-f0-9]{32}
+	0	32	d637df9b07e7bf19e8547e654f96a5cc
+	-	-	d637df9b07eobf19e8547e654f96a5cc
 
 V	[A-Fa-f0-9]{64}
+	0	64	eda4762b2eced5ac523c9a812c59658b1b3f2b4f7d16ec67f1dee8e548aac549
+	-	-	eda4762b2xced5ac523c9a812c59658b1b3f2b4f7d16ec67f1dee8e548aac549
 
 V	<tag>[^<]*</tag>
+
 
 V	<[\s]*tag[^>]*>[^<]*<[\s]*/[\s]*tag[\s]*>
 
 V	^(https?:\/\/)?([\da-z.\-]+)\.([a-z.]{2,6})([\/\w \.\-]*)*\/?$
+	0	18	https://google.com
+	0	42	http://github.com
+	0	25	www.baidu.com/image/tieba
 
 V 	<script>alert('XSS')</script>
 
