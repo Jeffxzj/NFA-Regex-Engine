@@ -11,14 +11,15 @@
 class Parser {
 public:
   using GraphStack = std::vector<std::pair<TokenType, std::vector<RegGraph>>>;
+  GraphStack graph_stack;
 
   RegexTokenizer &tokenizer;
   RegGraph regex_graph;
   bool debug;
 
-  void read_right_of_bar(GraphStack &stack);
 
   std::optional<std::string> build_graph();
+  RegGraph pop_and_join();
 
   Parser(RegexTokenizer &tokenizer) : tokenizer(tokenizer), debug{false} {
     debug =
