@@ -250,8 +250,6 @@ std::optional<RegexToken> RegexTokenizer::handle_parentheses() {
         case '^':
           stack.emplace_back('[');
           return TokenType::LEFT_BRACKETS_NOT;
-        case ':':
-          return handle_character_class();
         default:
           --index;
           stack.emplace_back('[');
@@ -302,12 +300,19 @@ std::optional<RegexToken> RegexTokenizer::handle_parentheses() {
       case '}':
       case '[':
       case ']':
-      case '*':
-      case '+':
-      case '?':
       case '.':
       case '|':
         --index;
+        return RegexToken::atom(std::move(buffer));
+      case '*':
+      case '+':
+      case '?':
+        if (buffer.size() > 1) {
+          index -= 2;
+          buffer.pop_back();
+        } else {
+          --index;
+        }
         return RegexToken::atom(std::move(buffer));
       case '$':
         if (finish()) {

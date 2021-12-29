@@ -197,7 +197,13 @@ public:
     return Edge{EdgeType::REPEAT, range};
   }
 
-  static Edge concanetation(std::string value) { return Edge{value}; }
+  static Edge concanetation(std::string value) {
+    if (value.size() > 0) {
+      return Edge{value};
+    } else {
+      return empty();
+    }
+  }
 
   static Edge character_set(CharacterSet set) { return Edge{set}; }
 

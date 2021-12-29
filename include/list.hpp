@@ -154,6 +154,8 @@ private:
   ListImpl::ListNode *ptr;
 
 public:
+  ListIter() : ptr{nullptr} {}
+
   ListIter(ListImpl::ListNode *ptr) : ptr{ptr} {}
 
   const T &operator*() const {

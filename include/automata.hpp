@@ -5,6 +5,7 @@
 #include <vector>
 #include <optional>
 #include <string_view>
+#include <unordered_set>
 
 #include "reg_graph.hpp"
 
@@ -17,7 +18,8 @@ private:
     size_t index;
     std::vector<size_t> loop;
     size_t match_start;
-    bool finish = false;
+    std::unordered_set<RegGraph::NodePtr> no_consum{};
+    bool finish{false};
   };
 
   RegGraph &graph;

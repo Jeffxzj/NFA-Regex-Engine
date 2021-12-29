@@ -146,16 +146,14 @@ std::ostream &operator<<(std::ostream &stream, RegGraph &other) {
     node_map.emplace(ptr, node_map.size());
   }
 
-  stream << "[GRAPH] size: " << node_map.size() << '\n';
+  stream
+      << "[GRAPH] size: " << node_map.size()
+      << ", head: " << node_map[other.head]
+      << ", tail: " << node_map[other.tail]
+      << '\n';
 
   for (auto ptr = other.nodes.begin(); ptr != other.nodes.end(); ++ptr) {
-    if (ptr == other.head) {
-      stream << "NODE: head";
-    } else if (ptr == other.tail) {
-      stream << "NODE: tail";
-    } else {
-      stream << "NODE: " << node_map[ptr];
-    }
+    stream << "NODE: " << node_map[ptr];
     switch (ptr->marker) {
       case NodeMarker::MATCH_BEGIN:
         stream << ", MATCH_BEGIN";
@@ -169,13 +167,7 @@ std::ostream &operator<<(std::ostream &stream, RegGraph &other) {
     stream << '\n';
 
     for (auto &[edge, dest] : ptr->edges) {
-      if (dest == other.head) {
-        stream << "    |=> head,\t" << edge << '\n';
-      } else if (dest == other.tail) {
-        stream << "    |=> tail,\t" << edge << '\n';
-      } else {
-        stream << "    |=> " << node_map[dest] << ",\t" << edge << '\n';
-      }
+      stream << "    |=> " << node_map[dest] << ",\t" << edge << '\n';
     }
   }
 

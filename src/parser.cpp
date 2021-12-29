@@ -84,7 +84,7 @@ std::optional<std::string> Parser::build_graph() {
               range_buf.emplace_back(0);
               break;
             case TokenType::NUMERIC:
-              if (range_buf.size() != 0 || range_buf.size() != 2) {
+              if (range_buf.size() != 0 && range_buf.size() != 2) {
                 return "invalid braces format";
               }
               range_buf.emplace_back(token->value);

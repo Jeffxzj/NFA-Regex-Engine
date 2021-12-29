@@ -1,5 +1,7 @@
 #include "automata.hpp"
 
+#include <unordered_map>
+
 #include "utility.hpp"
 
 
@@ -56,8 +58,14 @@
 // }
 
 std::optional<std::pair<size_t, size_t>> Automata::run() {
+  std::unordered_map<RegGraph::NodePtr, size_t> node_map{};
+
   if (debug) {
     std::cout << "---------- [ AUTOMATA ] ----------" << std::endl;
+
+    for (auto ptr = graph.nodes.begin(); ptr != graph.nodes.end(); ++ptr) {
+      node_map.emplace(ptr, node_map.size());
+    }
   }
 
   stack.emplace_back(StackElem{
@@ -69,7 +77,9 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
   });
 
   while (!stack.empty()) {
-    auto &[offset, node, index, loop, match_start, finish] = stack.back();
+    auto &[
+        offset, node, index, loop, match_start, no_consum, finish
+    ] = stack.back();
 
     if (index == 0) {
       // this node is visited for the first time
@@ -78,8 +88,18 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
       }
     }
 
-    if (index < node->edges.size()) {
+    if (no_consum.count(node) == 0 && index < node->edges.size()) {
       auto &[edge, dest] = node->edges[index++];
+
+      if (debug) {
+        std::cout
+            << node_map[node] << ' ' << index << ' ' << match_start
+            << " Edge " << "=> " << node_map[dest] << ": " << edge
+            << std::endl;
+      }
+
+      auto new_no_consum = no_consum;
+      new_no_consum.emplace(node);
 
       switch (edge.type) {
         case EdgeType::EMPTY:
@@ -89,17 +109,20 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
             .index = 0,
             .loop = loop,
             .match_start = match_start,
+            .no_consum = std::move(new_no_consum),
           });
           break;
         case EdgeType::ENTER_LOOP: {
           auto new_loop = loop;
           new_loop.emplace_back(1);
+
           stack.emplace_back(StackElem{
             .offset = offset,
             .node = dest,
             .index = 0,
             .loop = std::move(new_loop),
             .match_start = match_start,
+            .no_consum = std::move(new_no_consum),
           });
           break;
         }
@@ -113,12 +136,14 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
               .index = 0,
               .loop = std::move(new_loop),
               .match_start = match_start,
+              .no_consum = std::move(new_no_consum),
             });
           }
           break;
         }
         case EdgeType::REPEAT: {
           auto new_loop = loop;
+
           if (edge.range.in_upper_range(++new_loop.back())) {
             stack.emplace_back(StackElem{
               .offset = offset,
@@ -126,6 +151,7 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
               .index = 0,
               .loop = std::move(new_loop),
               .match_start = match_start,
+              .no_consum = std::move(new_no_consum),
             });
           }
           break;
@@ -160,6 +186,12 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
           regex_abort("unknown edge type");
       }
     } else {
+      if (debug) {
+        std::cout
+            << node_map[node] << ' ' << index << ' ' << match_start
+            << " Leaving" << std::endl;
+      }
+
       finish |= offset >= input.length();
 
       if (node->marker == NodeMarker::MATCH_END) {
