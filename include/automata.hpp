@@ -23,13 +23,11 @@ private:
   RegGraph &graph;
   std::string_view input;
   std::vector<StackElem> stack;
-  size_t best_match_start;
-  size_t best_match_end;
+  std::optional<std::pair<size_t, size_t>> best_match;
   bool debug;
 
   Automata(RegGraph &graph, std::string_view input) :
-      graph{graph}, input{input}, stack{},
-      best_match_start{input.size()}, best_match_end{input.size()},
+      graph{graph}, input{input}, stack{}, best_match{std::nullopt},
       debug{false}
   {
     debug =
@@ -50,10 +48,16 @@ private:
           << std::endl;
     }
 
-    if (end - begin > best_match_end - best_match_start) {
-      best_match_start = begin;
-      best_match_end = end;
+    if (best_match) {
+      auto &[best_match_start, best_match_end] = best_match.value();
+
+      if (end - begin > best_match_end - best_match_start) {
+        best_match = std::make_pair(begin, end);
+      }
+    } else {
+      best_match = std::make_pair(begin, end);
     }
+
   }
 
   std::optional<std::pair<size_t, size_t>> run();

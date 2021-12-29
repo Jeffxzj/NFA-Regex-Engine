@@ -66,7 +66,8 @@ void test_file(std::istream &stream) {
     if (buffer.empty()) { continue; }
 
     if (buffer[0] != '\t') {
-      if (auto pos = buffer.find('\t') != std::string::npos) {
+      auto pos = buffer.find('\t');
+      if (pos != std::string::npos) {
         auto marker = buffer.substr(0, pos);
 
         auto regex_string = escape_string(buffer.substr(pos + 1));

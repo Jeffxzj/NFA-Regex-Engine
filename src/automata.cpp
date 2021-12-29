@@ -171,9 +171,5 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
     }
   }
 
-  if (best_match_start < input.size()) {
-    return std::make_pair(best_match_start, best_match_end);
-  } else {
-    return std::nullopt;
-  }
+  return best_match;
 }
