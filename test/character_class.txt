@@ -1,6 +1,8 @@
-I	[]
+V	[]
+	-	-	abc
 
-I	[^]
+V	[^]
+	0	5	abcde
 
 V	[.]
 	0	1	a.bc.xyz.
@@ -10,13 +12,9 @@ V	[^.]
 
 V	a | [a-z]
 
-I	[b-a]
 
 V	[a-]
 
-I	[a-[:alpha:]]
-
-I	[a-[:digit:]]
 
 V	[^[:alpha:]f]
 
@@ -56,12 +54,16 @@ V	[[:space:]]
 
 
 V	[[:graph:]]
-	0	1	A|m0st éverything goes.
 
 V	[[:print:]]
-	0	1	A|m0st éverything goes.
 
 V	[[:word:]]
 	0	1	any word_ character
 
 V	[[:cntrl:]]	
+
+I	[b-a]
+
+I	[a-[:alpha:]]
+
+I	[a-[:digit:]]
