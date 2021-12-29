@@ -209,7 +209,7 @@ public:
     } else if (name == "word") {
       return TokenType::CHARACTER_CLASS_WORD;
     } else {
-      return error("unknown charactor class");
+      return error("unknown character class");
     }
   }
 

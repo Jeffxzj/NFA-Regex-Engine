@@ -128,7 +128,7 @@ std::optional<RegexToken> RegexTokenizer::handle_braces() {
       --index;
       break;
     default:
-      return error("unexpected charactor in range");
+      return error("unexpected character in range");
   }
 
   std::string buffer{};
@@ -195,7 +195,7 @@ std::optional<RegexToken> RegexTokenizer::handle_brackets() {
               buffer.push_back(c);
               return handle_error(RegexToken::character_range(buffer));
             default:
-              return error("unexpected charactor in range");
+              return error("unexpected character in range");
           }
         } else if (buffer.size() == 0) {
           if (regex[index - 2] == '[') {

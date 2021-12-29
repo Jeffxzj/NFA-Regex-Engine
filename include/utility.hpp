@@ -40,7 +40,11 @@ regex_assert(const char *file, int line, bool result, std::string msg) {
   }
 }
 
+#if defined(__DEBUG__)
 #define regex_assert(expr) regex_assert(__FILE__, __LINE__, expr, #expr)
+#else
+#define regex_assert(expr)
+#endif
 
 
 #define CASE_NUMERIC \
