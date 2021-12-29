@@ -181,7 +181,7 @@ end_braces:
 RegGraph Parser::pop_and_join() {
   regex_assert(!graph_stack.empty());
   auto &[_, top_vec] = graph_stack.back();
-  auto con_graph = RegGraph::concatenat_graph(top_vec.begin(), top_vec.end());
+  auto con_graph = RegGraph::concatenate_graph(top_vec.begin(), top_vec.end());
 
   while (graph_stack.back().first != TokenType::LEFT_PARENTHESES) {
     graph_stack.pop_back();
@@ -189,7 +189,7 @@ RegGraph Parser::pop_and_join() {
     regex_assert(!graph_stack.empty());
     auto &top_vec = graph_stack.back().second;
 
-    auto graph = RegGraph::concatenat_graph(top_vec.begin(), top_vec.end());
+    auto graph = RegGraph::concatenate_graph(top_vec.begin(), top_vec.end());
     con_graph = RegGraph::join_graph(std::move(con_graph), std::move(graph));
   }
 

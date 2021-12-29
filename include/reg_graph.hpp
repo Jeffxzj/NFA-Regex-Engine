@@ -67,7 +67,7 @@ public:
   static RegGraph join_graph(RegGraph &&graph1, RegGraph &&graph2);
 
   template<class GraphPtr>
-  static RegGraph concatenat_graph(GraphPtr begin, GraphPtr end);
+  static RegGraph concatenate_graph(GraphPtr begin, GraphPtr end);
 
   template<class GraphPtr>
   static RegGraph join_character_set_graph(GraphPtr begin, GraphPtr end);
@@ -305,7 +305,7 @@ public:
 };
 
 template<class GraphPtr>
-RegGraph RegGraph::concatenat_graph(GraphPtr begin, GraphPtr end) {
+RegGraph RegGraph::concatenate_graph(GraphPtr begin, GraphPtr end) {
   RegGraph graph = single_edge(Edge::empty());
 
   for (auto ptr = begin; ptr != end; ++ptr) {

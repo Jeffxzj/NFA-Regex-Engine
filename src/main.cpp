@@ -39,7 +39,13 @@ void test_match(
     std::cout << make_escape(input.substr(start, end - start));
     std::cout << std::endl;
     if (expect_start != start || expect_start + expect_size != end) {
-      std::cout << "expect no match" << std::endl;
+      if (expect_start != (size_t) -1) {
+        std::cout
+            << "expect start: " << expect_start
+            << ", expect size: " << expect_size << std::endl;
+      } else {
+        std::cout << "expect no match" << std::endl;
+      }
 
       regex_warn("match error");
     }
@@ -47,9 +53,9 @@ void test_match(
     std::cout << "---------- [  RESULT  ] ----------" << std::endl;
     std::cout << "NO_MATCH" << std::endl;
     if (expect_start != (size_t) -1) {
-    std::cout
-        << "expect start: " << expect_start
-        << ", expect size: " << expect_size << std::endl;
+      std::cout
+          << "expect start: " << expect_start
+          << ", expect size: " << expect_size << std::endl;
 
       regex_warn("match error");
     }

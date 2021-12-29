@@ -55,6 +55,11 @@ private:
 
       if (end - begin > best_match_end - best_match_start) {
         best_match = std::make_pair(begin, end);
+      } else if (
+          end - begin == best_match_end - best_match_start &&
+          begin < best_match_start
+      ) {
+        best_match = std::make_pair(begin, end);
       }
     } else {
       best_match = std::make_pair(begin, end);

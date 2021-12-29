@@ -30,16 +30,17 @@ void RegGraph::merge_head(NodePtr node, RegGraph &other) {
 }
 
 void RegGraph::concatenat_graph_continue(RegGraph &&graph) {
-  if (graph.is_simple_empty_graph()) { return; }
-
-  if (is_simple_empty_graph()) {
+  if (graph.is_simple_empty_graph()) {
+    return;
+  } else if (is_simple_empty_graph()) {
     *this = std::move(graph);
-  } else if (is_simple_concatenation_graph()) {
-    if (graph.is_simple_concatenation_graph()) {
-      get_first_edge().first.string.append(
-        graph.get_first_edge().first.string
-      );
-    }
+  } else if (
+      is_simple_concatenation_graph() &&
+      graph.is_simple_concatenation_graph()
+  ) {
+    get_first_edge().first.string.append(
+      graph.get_first_edge().first.string
+    );
   } else {
     merge_head(tail, graph);
     tail = graph.tail;
