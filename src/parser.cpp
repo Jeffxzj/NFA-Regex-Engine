@@ -66,9 +66,10 @@ std::optional<std::string> Parser::build_graph() {
         break;
       }
       /* Matches the preceding element
-         {m}   exactly m times
-         {m,}  at least m times
-         {m,n} at least m times, and no more than n times */
+         {m}    exactly m times
+         {m,}   at least m times
+         {,n}   no more than n times
+         {m,n}  at least m times, and no more than n times */
       case TokenType::LEFT_BRACES: {
         if (top_vec.empty()) { return "invalid suffix operator"; }
 
@@ -80,8 +81,14 @@ std::optional<std::string> Parser::build_graph() {
 
           switch (token->type) {
             case TokenType::COMMA:
-              if (range_buf.size() != 1) { return "invalid braces format"; }
-              range_buf.emplace_back(0);
+              if (range_buf.size() == 0) {
+                range_buf.emplace_back(0);
+                range_buf.emplace_back(0);
+              } else if (range_buf.size() == 1) {
+                range_buf.emplace_back(0);
+              } else {
+                return "invalid braces format";
+              }
               break;
             case TokenType::NUMERIC:
               if (range_buf.size() != 0 && range_buf.size() != 2) {

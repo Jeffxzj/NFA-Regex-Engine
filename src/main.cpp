@@ -87,17 +87,17 @@ void test_file(std::istream &stream) {
 
         regex = Regex::init(regex_string);
 
-
         switch (marker[0]) {
           case 'I':
             if (regex) {
               regex_warn("expect parse failure");
-              regex = std::nullopt;
+              regex.reset();
             }
-            break;
+            continue;
           case 'V':
             if (!regex) {
               regex_warn("expect parse success");
+              continue;
             }
             break;
           default:
@@ -183,6 +183,7 @@ int main(int argc, const char **argv) {
         test_file(file);
       }
     } catch (...) {
+      regex_warn("error thrown but suppressed");
       continue;
     }
   }
