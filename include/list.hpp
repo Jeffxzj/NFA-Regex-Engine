@@ -16,20 +16,6 @@ public:
   ListNode *first;
   ListNode *last;
 
-  void drop() {
-    delete first;
-    delete last;
-    first = nullptr;
-    last = nullptr;
-  }
-
-  void emplace(ListImpl &&other) {
-    first = other.first;
-    last = other.last;
-    other.first = nullptr;
-    other.last = nullptr;
-  }
-
   ListImpl() :
       first{new ListNode{nullptr, nullptr}},
       last{new ListNode{nullptr, nullptr}}
@@ -52,27 +38,30 @@ public:
   }
 
   void give_up_nodes(ListImpl &other) {
-    other.last->prev->next = first->next;
-    first->next->prev = other.last->prev;
-    last->prev->next = other.last;
-    other.last->prev = last->prev;
-    first->next = last;
-    last->prev = first;
+    if (this != &other && first->next != last) {
+      other.last->prev->next = first->next;
+      first->next->prev = other.last->prev;
+      last->prev->next = other.last;
+      other.last->prev = last->prev;
+      first->next = last;
+      last->prev = first;
+    }
   }
 
   ListImpl(const ListImpl &other) = delete;
 
-  ListImpl(ListImpl &&other) { emplace(std::move(other)); }
-
   ListImpl &operator=(const ListImpl &other) = delete;
 
-  ListImpl &operator=(ListImpl &&other) {
-    drop();
-    emplace(std::move(other));
-    return *this;
-  }
+  ~ListImpl() {
+    regex_assert(first != nullptr || first->next == last);
+    regex_assert(last != nullptr || last->prev == first);
 
-  ~ListImpl() { drop(); }
+    delete first;
+    delete last;
+
+    first = nullptr;
+    last = nullptr;
+  }
 };
 
 template<class T>
@@ -105,10 +94,14 @@ private:
       delete reinterpret_cast<ListNode *>(ptr);
       ptr = next;
     }
+
+    inner.first->next = inner.last;
+    inner.last->prev = inner.first;
   }
 
   void emplace(List &&other) {
-    inner = std::move(other.inner);
+    regex_assert(other.inner.first != nullptr);
+    other.inner.give_up_nodes(inner);
   }
 
 public:
@@ -136,13 +129,15 @@ public:
 
   List(const List &other) = delete;
 
-  List(List &&other) { emplace(std::move(other)); }
+  List(List &&other) : inner{} { emplace(std::move(other)); }
 
   List &operator=(const List &other) = delete;
 
   List &operator=(List &&other) {
-    drop();
-    emplace(std::move(other));
+    if (this != &other) {
+      drop();
+      emplace(std::move(other));
+    }
     return *this;
   }
 

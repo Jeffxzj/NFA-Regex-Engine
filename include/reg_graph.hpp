@@ -278,14 +278,20 @@ public:
   Edge(Edge &&other) { emplace(std::move(other)); }
 
   Edge &operator=(const Edge &other) {
-    drop();
-    copy(other);
+    if (this != &other) {
+      drop();
+      copy(other);
+    }
+
     return *this;
   }
 
   Edge &operator=(Edge &&other) {
-    drop();
-    emplace(std::move(other));
+    if (this != &other) {
+      drop();
+      emplace(std::move(other));
+    }
+
     return *this;
   }
 

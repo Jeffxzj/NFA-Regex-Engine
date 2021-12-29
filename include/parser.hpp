@@ -21,7 +21,9 @@ public:
   std::optional<std::string> build_graph();
   RegGraph pop_and_join();
 
-  Parser(RegexTokenizer &tokenizer) : tokenizer(tokenizer), debug{false} {
+  Parser(RegexTokenizer &tokenizer) :
+      tokenizer{tokenizer}, regex_graph{}, debug{false}
+  {
     debug =
         std::getenv("REGEX_DEBUG") != nullptr ||
         std::getenv("REGEX_PARSER_DEBUG") != nullptr;

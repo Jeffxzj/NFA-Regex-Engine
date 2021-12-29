@@ -50,8 +50,7 @@ void RegGraph::concatenat_graph_continue(RegGraph &&graph) {
 void RegGraph::join_character_set_graph_continue(RegGraph &&graph) {
   regex_assert(graph.is_simple_character_set_graph());
 
-  get_first_edge().first.set |=
-      graph.get_first_edge().first.set;
+  get_first_edge().first.set |= graph.get_first_edge().first.set;
 }
 
 void RegGraph::repeat_graph(RepeatRange range) {

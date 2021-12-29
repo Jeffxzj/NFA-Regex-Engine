@@ -8,6 +8,8 @@
 struct CharacterSet {
   std::array<uint8_t, 16> set;
 
+  constexpr CharacterSet() : set{} {}
+
   constexpr CharacterSet(std::array<uint8_t, 16> set) : set{set} {}
 
   constexpr explicit CharacterSet(CharacterRange range) : set{} {

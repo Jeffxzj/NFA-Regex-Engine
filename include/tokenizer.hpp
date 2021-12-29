@@ -225,14 +225,18 @@ public:
   RegexToken(RegexToken &&other) noexcept { emplace(std::move(other)); }
 
   RegexToken &operator=(const RegexToken &other) {
-    drop();
-    copy(other);
+    if (this != &other) {
+      drop();
+      copy(other);
+    }
     return *this;
   }
 
   RegexToken &operator=(RegexToken &&other) noexcept {
-    drop();
-    emplace(std::move(other));
+    if (this != &other) {
+      drop();
+      emplace(std::move(other));
+    }
     return *this;
   }
 
