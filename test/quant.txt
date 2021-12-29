@@ -10,29 +10,32 @@ V	a+
 VE	a?
 	0	1	a ba baa aaa ba b
 
-VE	ba?
+V	ba?
 	2	2	a ba baa aaa ba b
 
-V	a*?
+VE	a*?
 	9	4	a aa aaa aaaa
 
-V	a+?
+VE	a+?
 	9	4	a aa aaa aaaa
 
-V	a??
+VE	a??
 	0	1	a aa aaa aaaa
 
 V	a{3}
 	5	3	a aa aaa aaaa
 
-V	a{3}?
+VE	a{3}?
 	5	3	a aa aaa aaaa
 
 V	a{3,}
 	9	6	a aa aaa aaaaaa
 
-V	a{3,}?
-	5	3	a aa aaa aaaaaa
+VE	a{3,}?
+	9	6	a aa aaa aaaaaa
+
+V	a{,3}
+	6	3	a aa aaa aaaaaa
 
 V	a{3,6}
 	14	6	a aa aaa aaaa aaaaaaaaaa
@@ -47,13 +50,10 @@ V	abc|xy
 V	(a*){4}
 	18	6	xabcdefaaaa aaaaa aaaaaa
 
-V	(){0,1}
-
-
+VE	(){0,1}
 
 I	a*{4}
 
-I	a{,3}
 
 I	*a
 

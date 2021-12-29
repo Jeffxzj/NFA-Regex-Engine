@@ -21,6 +21,7 @@ I	[a-[:digit:]]
 V	[^[:alpha:]f]
 
 V	[^^]
+	1	3	^abc
 	-	-	^
 
 V	[a-z]

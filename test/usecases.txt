@@ -2,7 +2,7 @@ V	^([a-z0-9_\.\-]+)@([\da-z\.\-]+)\.([a-z\.]{2,5})$
 	0	14	jeffxzj@qq.com
 
 V	employ(er|ee|ment|ing|able)
-	0	10	employer employment employee employing employable
+	9	10	employer employment employee employing employable
 
 V	[a-f0-9]{32}
 	0	32	d637df9b07e7bf19e8547e654f96a5cc
@@ -17,7 +17,7 @@ V	^(https?:\/\/)?([\da-z.\-]+)\.([a-z.]{2,6})([\/[:alpha:]\.\-]*)*\/?$
 	0	17	http://github.com
 	0	25	www.baidu.com/image/tieba
 
-V 	\0\t\n\r\v\f\\
+V	\0\t\n\r\v\f\\
 
 VE	^([0369]|[258][0369]*[147]|[147]([0369]|[147][0369]*[258])*[258]|[258][0369]*[258]([0369]|[147][0369]*[258])*[258]|[147]([0369]|[147][0369]*[258])*[147][0369]*[147]|[258][0369]*[258]([0369]|[147][0369]*[258])*[147][0369]*[147])*$
 	0	1	0
