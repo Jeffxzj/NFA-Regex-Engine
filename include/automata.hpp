@@ -38,10 +38,6 @@ private:
         std::getenv("REGEX_AUTOMATA_DEBUG") != nullptr;
   }
 
-  // void extend_current();
-
-  // void step();
-
   void set_match(size_t begin, size_t end) {
     if (regex_unlikely(debug)) {
       std::cout

@@ -175,6 +175,8 @@ end_braces:
   if (!match_begin) { regex_graph.match_begin_unknown(); }
   if (!match_end) { regex_graph.match_tail_unknown(); }
 
+  regex_graph.optimize_graph();
+
   if (regex_unlikely(debug)) {
     std::cout << "---------- [  PARSER  ] ----------" << std::endl;
     std::cout << regex_graph;

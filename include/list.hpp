@@ -32,13 +32,15 @@ public:
   }
 
   void give_up_node(ListNode *node, ListImpl &other) {
+    regex_assert(this != &other);
     node->prev->next = node->next;
     node->next->prev = node->prev;
     other.insert_back(node);
   }
 
   void give_up_nodes(ListImpl &other) {
-    if (this != &other && first->next != last) {
+    regex_assert(this != &other);
+    if (first->next != last) {
       other.last->prev->next = first->next;
       first->next->prev = other.last->prev;
       last->prev->next = other.last;
@@ -201,9 +203,11 @@ public:
   }
 
   void delete_node() {
+    regex_assert(ptr != nullptr);
     ptr->prev->next = ptr->next;
     ptr->next->prev = ptr->prev;
     delete reinterpret_cast<typename List<T>::ListNode *>(ptr);
+    ptr = nullptr;
   }
 };
 

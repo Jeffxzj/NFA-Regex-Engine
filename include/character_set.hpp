@@ -49,6 +49,24 @@ struct CharacterSet {
     }
     return stream << ']';
   }
+
+  bool operator==(const CharacterSet &other) const {
+    for (int i = 0; i < 16; ++i) {
+      if (set[i] != other.set[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool operator<(const CharacterSet &other) const {
+    for (int i = 0; i < 16; ++i) {
+      if (set[i] != other.set[i]) {
+        return set[i] < other.set[i];
+      }
+    }
+    return false;
+  }
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_EMPTY{

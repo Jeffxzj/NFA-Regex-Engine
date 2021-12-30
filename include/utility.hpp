@@ -81,6 +81,20 @@ struct CharacterRange {
         << '[' << other.lower_bound << '-'
         << other.upper_bound << ']';
   }
+
+  bool operator==(const CharacterRange &other) const {
+    return
+        lower_bound == other.lower_bound &&
+        upper_bound == other.upper_bound;
+  }
+
+  bool operator<(const CharacterRange &other) const {
+    if (upper_bound - lower_bound != other.upper_bound - other.lower_bound) {
+      return upper_bound - lower_bound < other.upper_bound - other.lower_bound;
+    } else {
+      return lower_bound < other.upper_bound;
+    }
+  }
 };
 
 struct RepeatRange {
@@ -92,6 +106,20 @@ struct RepeatRange {
     stream << "{" << other.lower_bound << ',';
     if (other.upper_bound != 0) { stream << other.upper_bound; }
     return stream << '}';
+  }
+
+  bool operator==(const RepeatRange &other) const {
+    return
+        lower_bound == other.lower_bound &&
+        upper_bound == other.upper_bound;
+  }
+
+  bool operator<(const RepeatRange &other) const {
+    if (upper_bound - lower_bound != other.upper_bound - other.lower_bound) {
+      return upper_bound - lower_bound < other.upper_bound - other.lower_bound;
+    } else {
+      return lower_bound < other.upper_bound;
+    }
   }
 
   bool in_lower_range(size_t value) const {

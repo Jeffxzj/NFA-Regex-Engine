@@ -5,58 +5,6 @@
 #include "utility.hpp"
 
 
-// void Automata::extend_current() {
-//   std::vector<std::pair<RegGraph::NodePtr, size_t>> stack{};
-//   std::unordered_set<RegGraph::NodePtr> new_current{};
-
-//   // depth first search for stats that reachable by empty edges
-//   // if bounded repeat edge meet, expand it
-//   for (auto &node : current) {
-//     new_current.emplace(node);
-//     stack.emplace_back(node, 0);
-
-//     while(!stack.empty()) {
-//       auto &[node, index] = stack.back();
-
-//       if (node != graph.null_node() && index < node->edges.size()) {
-//         auto &[edge, dest] = node->edges[index++];
-//         if (new_current.count(dest) == 0) {
-//           switch (edge.type) {
-//             case EdgeType::EMPTY:
-//               new_current.emplace(dest);
-//               stack.emplace_back(dest, 0);
-//               break;
-//             case EdgeType::REPEAT:
-//               // we need to expand repeat state
-
-//               break;
-//             default:
-//               break;
-//           }
-//         }
-//       } else {
-//         stack.pop_back();
-//       }
-//     }
-//   }
-
-//   current = std::move(new_current);
-// }
-
-// void Automata::step() {
-//   for (auto &[edge, dest] : node->edges) {
-//     switch (edge.type) {
-//       case EdgeType::CONCATENATION:
-//       case EdgeType::CHARACTER_SET:
-//       case EdgeType::REPEAT:
-//         break;
-//       case EdgeType::EMPTY:
-//       default:
-//         exit(1);
-//     }
-//   }
-// }
-
 std::optional<std::pair<size_t, size_t>> Automata::run() {
   std::unordered_map<RegGraph::NodePtr, size_t> node_map{};
 
@@ -88,7 +36,7 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
       }
     }
 
-    if (no_consum.count(node) == 0 && index < node->edges.size()) {
+    if (!no_consum.contains(node) && index < node->edges.size()) {
       auto &[edge, dest] = node->edges[index++];
 
       if (regex_unlikely(debug)) {

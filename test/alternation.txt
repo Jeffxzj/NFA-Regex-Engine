@@ -34,3 +34,6 @@ I	\
 
 V	(abc)(def)
 	2	6	aaabcdeffff
+
+VE	.*****
+	0	10	qwsdcuskfo

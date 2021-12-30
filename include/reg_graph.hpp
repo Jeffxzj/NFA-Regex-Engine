@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <set>
 
 #include "utility.hpp"
@@ -31,13 +32,22 @@ public:
   using NodePtr = List<Node>::Iter;
 
 private:
-  NodePtr create_node() { return nodes.emplace_back(); }
+  NodePtr create_node() {
+    size += 1;
+    return nodes.emplace_back();
+  }
 
   NodePtr give_up_node(NodePtr node, RegGraph &other) {
+    other.size += 1;
+    size -= 1;
     return nodes.give_up_node(node, other.nodes);
   }
 
-  void give_up_nodes(RegGraph &other) { nodes.give_up_nodes(other.nodes); }
+  void give_up_nodes(RegGraph &other) {
+    other.size += size;
+    size = 0;
+    nodes.give_up_nodes(other.nodes);
+  }
 
   std::pair<Edge, RegGraph::NodePtr> &get_first_edge();
 
@@ -55,12 +65,25 @@ private:
 
   void join_character_set_graph_continue(RegGraph &&graph);
 
+  using NodeSet = std::unordered_set<NodePtr>;
+  using PassFn = bool (RegGraph::*)(NodeSet &);
+
+  void garbage_collection(PassFn pass_fn);
+
+  bool replace_empty_transition(NodeSet &new_nodes);
+
+  bool fold_empty_edge(NodeSet &new_nodes);
+
 public:
   List<Node> nodes;
   NodePtr head;
   NodePtr tail;
+  size_t size;
 
-  RegGraph() : nodes{}, head{create_node()}, tail{create_node()} {}
+  RegGraph() : nodes{}, head{}, tail{}, size{} {
+    head = create_node();
+    tail = create_node();
+  }
 
   static RegGraph single_edge(Edge &&edge);
 
@@ -72,8 +95,6 @@ public:
   template<class GraphPtr>
   static RegGraph join_character_set_graph(GraphPtr begin, GraphPtr end);
 
-  NodePtr null_node() { return nodes.end(); }
-
   void repeat_graph(RepeatRange range);
 
   void character_set_complement();
@@ -81,6 +102,8 @@ public:
   void match_begin_unknown();
 
   void match_tail_unknown();
+
+  void optimize_graph();
 
   friend std::ostream &operator<<(std::ostream &stream, RegGraph &other);
 
@@ -105,6 +128,8 @@ public:
   void add_empty_edge(RegGraph::NodePtr next);
 
   void merge_node(Node &other);
+
+  void unique_edge();
 };
 
 enum class EdgeType {
@@ -298,6 +323,48 @@ public:
     return *this;
   }
 
+  auto operator==(const Edge &other) const {
+    if (type == other.type) {
+      switch(type) {
+        case EdgeType::EMPTY:
+        case EdgeType::ENTER_LOOP:
+          return true;
+        case EdgeType::CONCATENATION:
+          return string == other.string;
+        case EdgeType::REPEAT:
+        case EdgeType::EXIT_LOOP:
+          return range == other.range;
+        case EdgeType::CHARACTER_SET:
+          return set == other.set;
+        default:
+          regex_abort("invalid type");
+      }
+    } else {
+      return false;
+    }
+  }
+
+  auto operator<(const Edge &other) const {
+    if (type == other.type) {
+      switch(type) {
+        case EdgeType::EMPTY:
+        case EdgeType::ENTER_LOOP:
+          return false;
+        case EdgeType::CONCATENATION:
+          return string < other.string;
+        case EdgeType::REPEAT:
+        case EdgeType::EXIT_LOOP:
+          return range < other.range;
+        case EdgeType::CHARACTER_SET:
+          return set < other.set;
+        default:
+          regex_abort("invalid type");
+      }
+    } else {
+      return type < other.type;
+    }
+  }
+
   ~Edge() { drop(); }
 };
 
@@ -332,11 +399,14 @@ inline void Node::add_empty_edge(RegGraph::NodePtr next) {
 }
 
 inline void Node::merge_node(Node &other) {
+  regex_assert(this != &other);
+
   std::move(
-    std::begin(other.edges),
-    std::end(other.edges),
+    other.edges.begin(),
+    other.edges.end(),
     std::back_inserter(edges)
   );
+
   other.edges.clear();
 }
 
