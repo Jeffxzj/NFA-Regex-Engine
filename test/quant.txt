@@ -44,10 +44,10 @@ V	abc+|def+
 	2	4	xyabcchellodeffqfdeff
 
 V	abc|xy
-	7	3	qq:xyz-abc	
+	7	3	qq:xyz-abc
 
 
-V	(a*){4}
+VE	(a*){4}
 	18	6	xabcdefaaaa aaaaa aaaaaa
 
 VE	(){0,1}
@@ -64,3 +64,9 @@ I	a{4,1}
 I	a{a-z}
 
 I	a{,1,2}
+
+VE	(a|){3}
+	0	1	a
+	0	2	aa
+	0	3	aaa
+	0	3	aaaa

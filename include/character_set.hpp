@@ -98,10 +98,10 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_UPPER{
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b00000000, //  0   1   2   3   4   5   6   7
   0b00000000, //  8   9   :   ;   <   =   >   ?
-  0b01111111, //  @   A   B   C   D   E   F   G
+  0b11111110, //  @   A   B   C   D   E   F   G
   0b11111111, //  H   I   J   K   L   M   N   O
   0b11111111, //  P   Q   R   S   T   U   V   W
-  0b11100000, //  X   Y   Z   [   \   ]   ^   _
+  0b00000111, //  X   Y   Z   [   \   ]   ^   _
   0b00000000, //  `   a   b   c   d   e   f   g
   0b00000000, //  h   i   j   k   l   m   n   o
   0b00000000, //  p   q   r   s   t   u   v   w
@@ -121,10 +121,10 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_LOWER{
   0b00000000, //  H   I   J   K   L   M   N   O
   0b00000000, //  P   Q   R   S   T   U   V   W
   0b00000000, //  X   Y   Z   [   \   ]   ^   _
-  0b01111111, //  `   a   b   c   d   e   f   g
+  0b11111110, //  `   a   b   c   d   e   f   g
   0b11111111, //  h   i   j   k   l   m   n   o
   0b11111111, //  p   q   r   s   t   u   v   w
-  0b11100000, //  x   y   z   {   |   }   ~   DEL
+  0b00000111, //  x   y   z   {   |   }   ~   DEL
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_ALPHA{
@@ -136,14 +136,14 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_ALPHA{
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b00000000, //  0   1   2   3   4   5   6   7
   0b00000000, //  8   9   :   ;   <   =   >   ?
-  0b01111111, //  @   A   B   C   D   E   F   G
+  0b11111110, //  @   A   B   C   D   E   F   G
   0b11111111, //  H   I   J   K   L   M   N   O
   0b11111111, //  P   Q   R   S   T   U   V   W
-  0b11100000, //  X   Y   Z   [   \   ]   ^   _
-  0b01111111, //  `   a   b   c   d   e   f   g
+  0b00000111, //  X   Y   Z   [   \   ]   ^   _
+  0b11111110, //  `   a   b   c   d   e   f   g
   0b11111111, //  h   i   j   k   l   m   n   o
   0b11111111, //  p   q   r   s   t   u   v   w
-  0b11100000, //  x   y   z   {   |   }   ~   DEL
+  0b00000111, //  x   y   z   {   |   }   ~   DEL
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_DIGIT{
@@ -154,7 +154,7 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_DIGIT{
   0b00000000, //  \s  !   "   #   $   %   &   '
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b11111111, //  0   1   2   3   4   5   6   7
-  0b11000000, //  8   9   :   ;   <   =   >   ?
+  0b00000011, //  8   9   :   ;   <   =   >   ?
   0b00000000, //  @   A   B   C   D   E   F   G
   0b00000000, //  H   I   J   K   L   M   N   O
   0b00000000, //  P   Q   R   S   T   U   V   W
@@ -173,7 +173,7 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_XDIGIT{
   0b00000000, //  \s  !   "   #   $   %   &   '
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b11111111, //  0   1   2   3   4   5   6   7
-  0b11000000, //  8   9   :   ;   <   =   >   ?
+  0b00000011, //  8   9   :   ;   <   =   >   ?
   0b01111110, //  @   A   B   C   D   E   F   G
   0b00000000, //  H   I   J   K   L   M   N   O
   0b00000000, //  P   Q   R   S   T   U   V   W
@@ -192,15 +192,15 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_ALNUM{
   0b00000000, //  \s  !   "   #   $   %   &   '
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b11111111, //  0   1   2   3   4   5   6   7
-  0b11000000, //  8   9   :   ;   <   =   >   ?
-  0b01111111, //  @   A   B   C   D   E   F   G
+  0b00000011, //  8   9   :   ;   <   =   >   ?
+  0b11111110, //  @   A   B   C   D   E   F   G
   0b11111111, //  H   I   J   K   L   M   N   O
   0b11111111, //  P   Q   R   S   T   U   V   W
-  0b11100000, //  X   Y   Z   [   \   ]   ^   _
-  0b01111111, //  `   a   b   c   d   e   f   g
+  0b00000111, //  X   Y   Z   [   \   ]   ^   _
+  0b11111110, //  `   a   b   c   d   e   f   g
   0b11111111, //  h   i   j   k   l   m   n   o
   0b11111111, //  p   q   r   s   t   u   v   w
-  0b11100000, //  x   y   z   {   |   }   ~   DEL
+  0b00000111, //  x   y   z   {   |   }   ~   DEL
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_PUNCT{
@@ -208,26 +208,26 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_PUNCT{
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
   0b00000000, //  CAN EM  SUB ESC FS  GS  RS  US
-  0b01111111, //  \s  !   "   #   $   %   &   '
+  0b11111110, //  \s  !   "   #   $   %   &   '
   0b11111111, //  (   )   *   +   ,   -   .   /
   0b00000000, //  0   1   2   3   4   5   6   7
-  0b00111111, //  8   9   :   ;   <   =   >   ?
-  0b10000000, //  @   A   B   C   D   E   F   G
+  0b11111100, //  8   9   :   ;   <   =   >   ?
+  0b00000001, //  @   A   B   C   D   E   F   G
   0b00000000, //  H   I   J   K   L   M   N   O
   0b00000000, //  P   Q   R   S   T   U   V   W
-  0b00011111, //  X   Y   Z   [   \   ]   ^   _
-  0b10000000, //  `   a   b   c   d   e   f   g
+  0b11111000, //  X   Y   Z   [   \   ]   ^   _
+  0b00000001, //  `   a   b   c   d   e   f   g
   0b00000000, //  h   i   j   k   l   m   n   o
   0b00000000, //  p   q   r   s   t   u   v   w
-  0b00011110, //  x   y   z   {   |   }   ~   DEL
+  0b01111000, //  x   y   z   {   |   }   ~   DEL
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_BLANK{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
-  0b01000000, //  BS  \t  \n  \v  \f  \r  SO  SI
+  0b00000010, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
   0b00000000, //  CAN EM  SUB ESC FS  GS  RS  US
-  0b10000000, //  \s  !   "   #   $   %   &   '
+  0b00000001, //  \s  !   "   #   $   %   &   '
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b00000000, //  0   1   2   3   4   5   6   7
   0b00000000, //  8   9   :   ;   <   =   >   ?
@@ -243,10 +243,10 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_BLANK{
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_SPACE{
   0b00000000, //  \0  SOH STX ETX EOT ENQ ACK BEL
-  0b01111100, //  BS  \t  \n  \v  \f  \r  SO  SI
+  0b00111110, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
   0b00000000, //  CAN EM  SUB ESC FS  GS  RS  US
-  0b10000000, //  \s  !   "   #   $   %   &   '
+  0b00000001, //  \s  !   "   #   $   %   &   '
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b00000000, //  0   1   2   3   4   5   6   7
   0b00000000, //  8   9   :   ;   <   =   >   ?
@@ -276,7 +276,7 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_CONTRL{
   0b00000000, //  `   a   b   c   d   e   f   g
   0b00000000, //  h   i   j   k   l   m   n   o
   0b00000000, //  p   q   r   s   t   u   v   w
-  0b00000001, //  x   y   z   {   |   }   ~   DEL
+  0b10000000, //  x   y   z   {   |   }   ~   DEL
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_GRAPH{
@@ -284,7 +284,7 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_GRAPH{
   0b00000000, //  BS  \t  \n  \v  \f  \r  SO  SI
   0b00000000, //  DLE DC1 DC2 DC3 DC4 NAK SYN ETB
   0b00000000, //  CAN EM  SUB ESC FS  GS  RS  US
-  0b01111111, //  \s  !   "   #   $   %   &   '
+  0b11111110, //  \s  !   "   #   $   %   &   '
   0b11111111, //  (   )   *   +   ,   -   .   /
   0b11111111, //  0   1   2   3   4   5   6   7
   0b11111111, //  8   9   :   ;   <   =   >   ?
@@ -295,7 +295,7 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_GRAPH{
   0b11111111, //  `   a   b   c   d   e   f   g
   0b11111111, //  h   i   j   k   l   m   n   o
   0b11111111, //  p   q   r   s   t   u   v   w
-  0b11111110, //  x   y   z   {   |   }   ~   DEL
+  0b01111111, //  x   y   z   {   |   }   ~   DEL
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_PRINT{
@@ -314,7 +314,7 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_PRINT{
   0b11111111, //  `   a   b   c   d   e   f   g
   0b11111111, //  h   i   j   k   l   m   n   o
   0b11111111, //  p   q   r   s   t   u   v   w
-  0b11111110, //  x   y   z   {   |   }   ~   DEL
+  0b01111111, //  x   y   z   {   |   }   ~   DEL
 };
 
 static constexpr std::array<uint8_t, 16> CHARACTER_SET_WORD{
@@ -325,13 +325,13 @@ static constexpr std::array<uint8_t, 16> CHARACTER_SET_WORD{
   0b00000000, //  \s  !   "   #   $   %   &   '
   0b00000000, //  (   )   *   +   ,   -   .   /
   0b11111111, //  0   1   2   3   4   5   6   7
-  0b11000000, //  8   9   :   ;   <   =   >   ?
-  0b01111111, //  @   A   B   C   D   E   F   G
+  0b00000011, //  8   9   :   ;   <   =   >   ?
+  0b11111110, //  @   A   B   C   D   E   F   G
   0b11111111, //  H   I   J   K   L   M   N   O
   0b11111111, //  P   Q   R   S   T   U   V   W
-  0b11100001, //  X   Y   Z   [   \   ]   ^   _
-  0b01111111, //  `   a   b   c   d   e   f   g
+  0b10000111, //  X   Y   Z   [   \   ]   ^   _
+  0b11111110, //  `   a   b   c   d   e   f   g
   0b11111111, //  h   i   j   k   l   m   n   o
   0b11111111, //  p   q   r   s   t   u   v   w
-  0b11100000, //  x   y   z   {   |   }   ~   DEL
+  0b00000111, //  x   y   z   {   |   }   ~   DEL
 };

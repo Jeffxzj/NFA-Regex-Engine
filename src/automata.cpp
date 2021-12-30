@@ -144,6 +144,8 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
         case EdgeType::REPEAT: {
           auto new_loop = loop;
 
+          if (!edge.range.in_lower_range(loop.back())) { new_no_consum = {}; }
+
           if (edge.range.in_upper_range(++new_loop.back())) {
             stack.emplace_back(StackElem{
               .offset = offset,

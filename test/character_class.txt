@@ -56,7 +56,7 @@ V	[[:punct:]]
 	5	1	hello, regex user!
 
 V	[[:blank:]]
-	3	1	b	c a
+	1	1	b	c a
 
 V	[[:space:]]
 	3	1	any	whitespace character
@@ -70,7 +70,7 @@ V	[[:print:]]
 V	[[:word:]]
 	0	1	___word_ character
 
-V	[[:cntrl:]]	
+V	[[:cntrl:]]
 
 I	[b-a]
 

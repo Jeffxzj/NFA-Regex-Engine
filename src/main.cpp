@@ -93,11 +93,10 @@ void test_file(std::istream &stream) {
               regex_warn("expect parse failure");
               regex.reset();
             }
-            continue;
+            break;
           case 'V':
             if (!regex) {
               regex_warn("expect parse success");
-              continue;
             }
             break;
           default:
@@ -118,13 +117,13 @@ void test_file(std::istream &stream) {
           }
         }
 
-        if (match_empty) {
-          test_match(regex.value(), "", 0, 0);
-        } else {
-          test_match(regex.value(), "", -1, -1);
+        if (regex) {
+          if (match_empty) {
+            test_match(regex.value(), "", 0, 0);
+          } else {
+            test_match(regex.value(), "", -1, -1);
+          }
         }
-
-        std::cout << std::endl;
       } else {
         regex_warn("invalid format");
       }
