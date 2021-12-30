@@ -25,9 +25,7 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
   });
 
   while (!stack.empty()) {
-    auto &[
-        offset, node, index, loop, match_start, no_consum, finish
-    ] = stack.back();
+    auto &[offset, node, index, loop, match_start, finish] = stack.back();
 
     if (index == 0) {
       // this node is visited for the first time
@@ -36,7 +34,7 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
       }
     }
 
-    if (!no_consum.contains(node) && index < node->edges.size()) {
+    if (index < node->edges.size()) {
       auto &[edge, dest] = node->edges[index++];
 
       if (regex_unlikely(debug)) {
@@ -46,9 +44,6 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
             << std::endl;
       }
 
-      auto new_no_consum = no_consum;
-      new_no_consum.emplace(node);
-
       switch (edge.type) {
         case EdgeType::EMPTY:
           stack.emplace_back(StackElem{
@@ -57,7 +52,6 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
             .index = 0,
             .loop = loop,
             .match_start = match_start,
-            .no_consum = std::move(new_no_consum),
           });
           break;
         case EdgeType::ENTER_LOOP: {
@@ -70,7 +64,6 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
             .index = 0,
             .loop = std::move(new_loop),
             .match_start = match_start,
-            .no_consum = std::move(new_no_consum),
           });
           break;
         }
@@ -84,15 +77,12 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
               .index = 0,
               .loop = std::move(new_loop),
               .match_start = match_start,
-              .no_consum = std::move(new_no_consum),
             });
           }
           break;
         }
         case EdgeType::REPEAT: {
           auto new_loop = loop;
-
-          if (!edge.range.in_lower_range(loop.back())) { new_no_consum = {}; }
 
           if (edge.range.in_upper_range(++new_loop.back())) {
             stack.emplace_back(StackElem{
@@ -101,7 +91,6 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
               .index = 0,
               .loop = std::move(new_loop),
               .match_start = match_start,
-              .no_consum = std::move(new_no_consum),
             });
           }
           break;

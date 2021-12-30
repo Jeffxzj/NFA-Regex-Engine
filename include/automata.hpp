@@ -19,7 +19,6 @@ private:
     size_t index;
     std::vector<size_t> loop;
     size_t match_start;
-    std::unordered_set<RegGraph::NodePtr> no_consum{};
     bool finish{false};
   };
 

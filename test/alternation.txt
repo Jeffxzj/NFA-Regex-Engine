@@ -37,3 +37,6 @@ V	(abc)(def)
 
 VE	.*****
 	0	10	qwsdcuskfo
+
+VE	()*****
+	0	0	qwsdcuskfo

@@ -286,6 +286,11 @@ void RegGraph::optimize_graph() {
   }
 
   garbage_collection(&RegGraph::replace_empty_transition);
+
+  for (auto ptr = nodes.begin(); ptr != nodes.end(); ++ptr) {
+    ptr->unique_edge();
+  }
+
   garbage_collection(&RegGraph::fold_empty_edge);
 }
 
