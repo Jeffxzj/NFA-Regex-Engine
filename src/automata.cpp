@@ -60,7 +60,7 @@
 std::optional<std::pair<size_t, size_t>> Automata::run() {
   std::unordered_map<RegGraph::NodePtr, size_t> node_map{};
 
-  if (debug) {
+  if (regex_unlikely(debug)) {
     std::cout << "---------- [ AUTOMATA ] ----------" << std::endl;
 
     for (auto ptr = graph.nodes.begin(); ptr != graph.nodes.end(); ++ptr) {
@@ -91,7 +91,7 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
     if (no_consum.count(node) == 0 && index < node->edges.size()) {
       auto &[edge, dest] = node->edges[index++];
 
-      if (debug) {
+      if (regex_unlikely(debug)) {
         std::cout
             << node_map[node] << ' ' << index << ' ' << match_start
             << " Edge " << "=> " << node_map[dest] << ": " << edge
@@ -188,7 +188,7 @@ std::optional<std::pair<size_t, size_t>> Automata::run() {
           regex_abort("unknown edge type");
       }
     } else {
-      if (debug) {
+      if (regex_unlikely(debug)) {
         std::cout
             << node_map[node] << ' ' << index << ' ' << match_start
             << " Leaving" << std::endl;

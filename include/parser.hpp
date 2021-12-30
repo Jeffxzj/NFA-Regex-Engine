@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 
+#include "utility.hpp"
 #include "tokenizer.hpp"
 #include "reg_graph.hpp"
 

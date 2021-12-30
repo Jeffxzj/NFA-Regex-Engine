@@ -21,3 +21,16 @@ V	(a|b)
 
 V	(a|b|c|d|E)
 	4	1	ABCDEF
+
+I	)
+
+V	^^$$
+	0	2	^$
+
+V	^$$
+	0	1	$
+
+I	\
+
+V	(abc)(def)
+	2	6	aaabcdeffff

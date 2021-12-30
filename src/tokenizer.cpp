@@ -97,13 +97,13 @@ std::optional<RegexToken> RegexTokenizer::handle_character_class() {
   std::string buffer{};
 
   while (true) {
-    if (finish()) {
+    if (regex_unlikely(finish())) {
       return error("unexpected character class");
     }
 
     switch (auto c = regex[index++]) {
       case ':':
-        if (!finish() && regex[index++] == ']') {
+        if (regex_likely(!finish() && regex[index++] == ']')) {
           return RegexToken::character_class(buffer);
         } else {
           return error("unexpected character class");
@@ -134,7 +134,7 @@ std::optional<RegexToken> RegexTokenizer::handle_braces() {
   std::string buffer{};
 
   while (true) {
-    if (finish()) {
+    if (regex_unlikely(finish())) {
       return handle_error(RegexToken::numeric(buffer));
     }
 
@@ -155,7 +155,7 @@ std::optional<RegexToken> RegexTokenizer::handle_brackets() {
       stack.pop_back();
       return TokenType::RIGHT_BRACKETS;
     case '[':
-      if (!finish() && regex[index++] == ':') {
+      if (regex_likely(!finish() && regex[index++] == ':')) {
         return handle_character_class();
       } else {
         return error("nested brackets not allowed");
@@ -168,7 +168,7 @@ std::optional<RegexToken> RegexTokenizer::handle_brackets() {
   std::string buffer{};
 
   while(true) {
-    if (finish()) {
+    if (regex_unlikely(finish())) {
       return RegexToken::atom(std::move(buffer));
     }
 
@@ -178,7 +178,7 @@ std::optional<RegexToken> RegexTokenizer::handle_brackets() {
         --index;
         return RegexToken::atom(std::move(buffer));
       case '-':
-        if (finish()) {
+        if (regex_unlikely(finish())) {
           buffer.push_back(c);
           break;
         }
@@ -198,19 +198,16 @@ std::optional<RegexToken> RegexTokenizer::handle_brackets() {
               return error("unexpected character in range");
           }
         } else if (buffer.size() == 0) {
-          if (regex[index - 2] == '[') {
-            buffer.push_back(c);
-            break;
-          } else {
-            return error("unexpected hyphen");
-          }
+          regex_assert(regex[index - 2] == '[');
+          buffer.push_back(c);
+          break;
         } else {
           index -= 2;
           buffer.pop_back();
           return RegexToken::atom(std::move(buffer));
         }
       case '\\':
-        if (finish()) {
+        if (regex_unlikely(finish())) {
           return error("escape at the end of expression");
         }
         buffer.push_back(escape_char(regex[index++]));
@@ -241,7 +238,7 @@ std::optional<RegexToken> RegexTokenizer::handle_parentheses() {
     case '}':
       return error("unmatched right braces");
     case '[':
-      if (finish()) {
+      if (regex_unlikely(finish())) {
         stack.emplace_back('[');
         return TokenType::LEFT_BRACKETS;
       }
@@ -336,7 +333,7 @@ std::optional<RegexToken> RegexTokenizer::handle_parentheses() {
 }
 
 std::optional<RegexToken> RegexTokenizer::next() {
-  if (debug && index == 0) {
+  if (regex_unlikely(debug && index == 0)) {
     std::cout << "---------- [TOKENIZER ] ----------" << std::endl;
   }
 
@@ -356,7 +353,7 @@ std::optional<RegexToken> RegexTokenizer::next() {
     }
   }
 
-  if (debug && result) {
+  if (regex_unlikely(debug && result)) {
     std::cout << result.value() << std::endl;
   }
 

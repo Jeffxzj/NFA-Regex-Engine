@@ -13,9 +13,20 @@ std::string escape_string(std::string string) {
   std::string result{};
 
   for (size_t i = 0; i < string.size(); ++i) {
-    if (i + 1 < string.size() && string[i] == '\\' && string[i + 1] == 'n') {
-      result.push_back('\n');
-      ++i;
+    if (string[i] == '\\' && i + 1 < string.size()) {
+      switch(string[i + 1]) {
+        case 'n':
+          result.push_back('\n');
+          ++i;
+          break;
+        case '\\':
+          result.push_back('\\');
+          ++i;
+          break;
+        default:
+          result.push_back(string[i]);
+          break;
+      }
     } else {
       result.push_back(string[i]);
     }
@@ -35,9 +46,11 @@ void test_match(
   if (auto match = regex.match(input)) {
     std::cout << "---------- [  RESULT  ] ----------" << std::endl;
     auto &[start, end] = match.value();
-    std::cout << "MATCH: " << start << ", " << end << ", ";
-    std::cout << make_escape(input.substr(start, end - start));
-    std::cout << std::endl;
+    std::cout
+        << "MATCH: start: " << start
+        << ", size: " << end - start
+        << ", string: " << make_escape(input.substr(start, end - start))
+        << std::endl;
     if (expect_start != start || expect_start + expect_size != end) {
       if (expect_start != (size_t) -1) {
         std::cout
