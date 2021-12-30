@@ -10,6 +10,9 @@
 
 #define regex_no_return __attribute__((noreturn))
 
+#define regex_likely(x)  __builtin_expect((x), 1)
+#define regex_unlikely(x) __builtin_expect((x), 0)
+
 inline void regex_warn(const char *file, int line, std::string msg) {
   std::cerr
       << "Warn at file " << file << ", line " << line << ": "
@@ -31,7 +34,7 @@ regex_abort(const char *file, int line, std::string msg) {
 
 inline void
 regex_assert(const char *file, int line, bool result, std::string msg) {
-  if (!result) {
+  if (regex_unlikely(!result)) {
     std::cerr
         << "Assert failed at file " << file << ", line " << line << ": "
         << msg << std::endl;
@@ -137,12 +140,13 @@ struct Escape<char> {
           return stream << "\\t";
         case '\r':
           return stream << "\\r";
+        case '\\':
+          return stream << "\\\\";
         default:
-          stream
+          return stream
               << "\\x" << std::setw(2) << std::hex << std::setfill('0')
               << static_cast<int>(c)
               << std::setw(0) << std::dec << std::setfill(' ');
-          return stream;
       }
     } else {
       regex_warn("meet none ascii");

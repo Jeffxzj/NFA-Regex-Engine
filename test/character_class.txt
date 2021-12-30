@@ -25,6 +25,16 @@ V	[a-z]
 	0	1	a
 	-	-	?\n?
 
+V	[1-3]
+	0	1	2
+	-	-	4a?
+
+V	[-1]
+	0	1	-
+
+V	[1-]
+	0	1	-
+
 V	[[:upper:]]
 	3	1	abcABCabcDEF
 	-	-	a
@@ -74,6 +84,38 @@ V	[[:cntrl:]]
 
 I	[b-a]
 
+I	[2-1]
+
+I	[a-2]
+
+I	[?-!]
+
+I	[a-?]
+
+I	[1-?]
+
+I	[1-
+
+I	[\
+
+I	[
+
+I	]
+
+I	[[]]
+
 I	[a-[:alpha:]]
 
 I	[a-[:digit:]]
+
+I	[[:
+
+I	[[:alpha
+
+I	[[:alpha:
+
+I	[[:alpha:]
+
+I	[[:ALPHA:]]
+
+I	[[:alphaa:]]

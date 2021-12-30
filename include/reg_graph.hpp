@@ -198,11 +198,8 @@ public:
   }
 
   static Edge concanetation(std::string value) {
-    if (value.size() > 0) {
-      return Edge{value};
-    } else {
-      return empty();
-    }
+    regex_assert(value.size() > 0);
+    return Edge{value};
   }
 
   static Edge character_set(CharacterSet set) { return Edge{set}; }

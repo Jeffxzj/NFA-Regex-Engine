@@ -91,9 +91,7 @@ std::optional<std::string> Parser::build_graph() {
               }
               break;
             case TokenType::NUMERIC:
-              if (range_buf.size() != 0 && range_buf.size() != 2) {
-                return "invalid braces format";
-              }
+              regex_assert(range_buf.size() == 0 || range_buf.size() == 2);
               range_buf.emplace_back(token->value);
               break;
             case TokenType::RIGHT_BRACES:
@@ -177,7 +175,7 @@ end_braces:
   if (!match_begin) { regex_graph.match_begin_unknown(); }
   if (!match_end) { regex_graph.match_tail_unknown(); }
 
-  if (debug) {
+  if (regex_unlikely(debug)) {
     std::cout << "---------- [  PARSER  ] ----------" << std::endl;
     std::cout << regex_graph;
   }

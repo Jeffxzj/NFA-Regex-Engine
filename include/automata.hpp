@@ -7,6 +7,7 @@
 #include <string_view>
 #include <unordered_set>
 
+#include "utility.hpp"
 #include "reg_graph.hpp"
 
 
@@ -42,7 +43,7 @@ private:
   // void step();
 
   void set_match(size_t begin, size_t end) {
-    if (debug) {
+    if (regex_unlikely(debug)) {
       std::cout
           << "match: " << begin << ", " << end
           << ", "
