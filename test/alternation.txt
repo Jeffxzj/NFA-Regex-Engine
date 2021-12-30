@@ -1,8 +1,23 @@
 VE	()
+	0	0	aa
+
 VE	(|)
-V	(||)
-V	(|||)
-V	(a|)
-V	(|b)
+	0	0	aa
+
+VE	(||)
+	0	0	aa
+
+VE	(|||)
+	0	0	aa
+
+VE	(a|)
+	0	1	a
+
+VE	(|b)
+	1	1	ab
+
 V	(a|b)
-V	|
+	1	1	nba
+
+V	(a|b|c|d|E)
+	4	1	ABCDEF

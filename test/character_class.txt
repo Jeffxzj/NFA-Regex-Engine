@@ -2,63 +2,73 @@ V	[]
 	-	-	abc
 
 V	[^]
-	0	5	abcde
+	0	1	abcde
 
 V	[.]
-	0	1	a.bc.xyz.
+	3	1	abc.xyz.
+
+V	[^^]
+	4	1	^^^^abc
+	-	-	^
 
 V	[^.]
 	0	1	a.bc.xyz.
 
-V	a | [a-z]
+V	q|[x-z]
+	5	1	a.bc.xyz.
+	-	-	?\n?abc
 
-
-V	[a-]
-
-
-V	[^[:alpha:]f]
-
-V	[^^]
-	1	3	^abc
-	-	-	^
+V	[c-]
+	2	1	a.cdefg.xyz.
 
 V	[a-z]
 	0	1	a
 	-	-	?\n?
 
 V	[[:upper:]]
-	0	1	ABCabcDEF
+	3	1	abcABCabcDEF
+	-	-	a
 
 V	[[:lower:]]
-	0	1	ABCabcDEF
+	3	1	ABCabcDEF
+	-	-	A
 
 V	[[:alpha:]]
-	0	1	hello, world.
+	0	1	hello, World.
+	-	-	./?
+
+V	[^[:alpha:]]
+	0	1	./?
+
 
 V	[[:digit:]]
-	0	1	one: 1, two: 2
+	5	1	one: 1, two: 2
+	-	-	f
 
 V	[[:xdigit:]]
+	5	1	:xyz:ffec123
+	-	-	?x
 
 V	[[:alnum:]]
-	0	1	1st, 2nd, 3rd.
+	1	1	:1st, 2nd, 3rd.
 
 V	[[:punct:]]
-	0	1	hello, regex user!
+	5	1	hello, regex user!
 
 V	[[:blank:]]
-	0	1	a b	c
+	3	1	b	c a
 
 V	[[:space:]]
-	0	1	any whitespace character
-
+	3	1	any	whitespace character
 
 V	[[:graph:]]
+	0	1	a
 
 V	[[:print:]]
+	0	1	a
 
 V	[[:word:]]
-	0	1	any word_ character
+	0	1	___word_ character
 
 V	[[:cntrl:]]	
 

@@ -34,8 +34,8 @@ V	a{3,}
 VE	a{3,}?
 	9	6	a aa aaa aaaaaa
 
-V	a{,3}
-	6	3	a aa aaa aaaaaa
+VE	a{,3}
+	5	3	a aa aaa aaaaaa
 
 V	a{3,6}
 	14	6	a aa aaa aaaa aaaaaaaaaa
@@ -58,3 +58,9 @@ I	*a
 I	?a
 
 I	+a
+
+I	a{4,1}
+
+I	a{a-z}
+
+I	a{,1,2}
