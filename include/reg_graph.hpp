@@ -32,6 +32,9 @@ public:
   using NodePtr = List<Node>::Iter;
 
 private:
+  static constexpr size_t LOOP_UNROLL_SIZE_LIMIT = 1024;
+  static constexpr size_t LOOP_UNROLL_MUL_LIMIT = 32;
+
   NodePtr create_node() {
     size += 1;
     return nodes.emplace_back();
@@ -59,8 +62,6 @@ private:
 
   bool is_simple_character_set_graph();
 
-  void merge_head(NodePtr node, RegGraph &other);
-
   void concatenat_graph_continue(RegGraph &&graph);
 
   void join_character_set_graph_continue(RegGraph &&graph);
@@ -69,6 +70,8 @@ private:
   using PassFn = bool (RegGraph::*)(NodeSet &);
 
   void garbage_collection(PassFn pass_fn);
+
+  void edge_deduplication();
 
   bool replace_empty_transition(NodeSet &new_nodes);
 
@@ -94,6 +97,8 @@ public:
 
   template<class GraphPtr>
   static RegGraph join_character_set_graph(GraphPtr begin, GraphPtr end);
+
+  RegGraph clone();
 
   void repeat_graph(RepeatRange range);
 
@@ -126,8 +131,6 @@ public:
   void add_edge(Edge &&edge, RegGraph::NodePtr next);
 
   void add_empty_edge(RegGraph::NodePtr next);
-
-  void merge_node(Node &other);
 
   void unique_edge();
 };
@@ -396,18 +399,6 @@ inline void Node::add_edge(Edge &&edge, RegGraph::NodePtr next) {
 
 inline void Node::add_empty_edge(RegGraph::NodePtr next) {
   edges.emplace_back(Edge::empty(), next);
-}
-
-inline void Node::merge_node(Node &other) {
-  regex_assert(this != &other);
-
-  std::move(
-    other.edges.begin(),
-    other.edges.end(),
-    std::back_inserter(edges)
-  );
-
-  other.edges.clear();
 }
 
 

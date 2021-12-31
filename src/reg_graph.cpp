@@ -28,12 +28,6 @@ bool RegGraph::is_simple_character_set_graph() {
   return is_simple_graph() && get_first_edge().first.is_character_set();
 }
 
-void RegGraph::merge_head(NodePtr node, RegGraph &other) {
-    node->merge_node(*other.head);
-    other.head.delete_node();
-    other.size -= 1;
-}
-
 void RegGraph::concatenat_graph_continue(RegGraph &&graph) {
   if (graph.is_simple_empty_graph()) {
     return;
@@ -47,7 +41,7 @@ void RegGraph::concatenat_graph_continue(RegGraph &&graph) {
       graph.get_first_edge().first.string
     );
   } else {
-    merge_head(tail, graph);
+    tail->add_empty_edge(graph.head);
     tail = graph.tail;
     graph.give_up_nodes(*this);
   }
@@ -58,9 +52,32 @@ void RegGraph::join_character_set_graph_continue(RegGraph &&graph) {
   get_first_edge().first.set |= graph.get_first_edge().first.set;
 }
 
-void RegGraph::repeat_graph(RepeatRange range) {
-  if (is_simple_empty_graph()) { return; }
+RegGraph RegGraph::clone() {
+  RegGraph new_graph{};
 
+  std::unordered_map<NodePtr, NodePtr> map{
+      {head, new_graph.head}, {tail, new_graph.tail}
+  };
+
+  for (auto ptr = nodes.begin(); ptr != nodes.end(); ++ptr) {
+    if (ptr != head && ptr != tail) {
+      map.emplace(ptr, new_graph.create_node());
+    }
+  }
+
+  for (auto ptr = nodes.begin(); ptr != nodes.end(); ++ptr) {
+    auto &edges = map[ptr]->edges;
+    edges.reserve(ptr->edges.size());
+
+    for (auto &[edge, dest] : ptr->edges) {
+      edges.emplace_back(edge, map[dest]);
+    }
+  }
+
+  return new_graph;
+}
+
+void RegGraph::repeat_graph(RepeatRange range) {
   // {1,1} has no effect
   if (range.lower_bound == 1 && range.upper_bound == 2) { return; }
   // {0,0} clears the graph
@@ -74,27 +91,92 @@ void RegGraph::repeat_graph(RepeatRange range) {
     return;
   }
   // loop needs to be created
-  auto new_head = create_node();
-  auto new_tail = create_node();
+
   if (range.lower_bound < 2 && range.upper_bound == 0) {
     // unbounded loop, empty edge could do it
+    auto new_head = create_node();
+    auto new_tail = create_node();
+
     tail->add_empty_edge(head);
     new_head->add_empty_edge(head);
     tail->add_empty_edge(new_tail);
+
+    head = new_head;
+    tail = new_tail;
+
+    if (range.lower_bound == 0) {
+      head->add_empty_edge(tail);
+    }
+  } else if (
+      range.lower_bound >= 2 && range.upper_bound == 0 &&
+      range.lower_bound <= LOOP_UNROLL_MUL_LIMIT &&
+      size * range.lower_bound <= LOOP_UNROLL_SIZE_LIMIT
+  ) {
+    auto origin_head = head;
+    auto origin_tail = tail;
+
+    auto origin_graph = clone();
+
+    for (size_t i = 1; i < range.lower_bound; ++i) {
+      auto graph = origin_graph.clone();
+
+      graph.tail->add_empty_edge(head);
+      head = graph.head;
+
+      graph.give_up_nodes(*this);
+    }
+
+    tail = create_node();
+
+    origin_tail->add_empty_edge(origin_head);
+    origin_tail->add_empty_edge(tail);
+  } else if (
+      range.upper_bound > 2 &&
+      (range.upper_bound - 1) <= LOOP_UNROLL_MUL_LIMIT &&
+      size * (range.upper_bound - 1) <= LOOP_UNROLL_SIZE_LIMIT
+  ) {
+    size_t i = range.upper_bound - 1;
+
+    auto origin_graph = clone();
+
+    for (; i > range.lower_bound && i > 1; --i) {
+      auto graph = origin_graph.clone();
+
+      graph.tail->add_empty_edge(head);
+      graph.tail->add_empty_edge(tail);
+
+      head = graph.head;
+
+      graph.give_up_nodes(*this);
+    }
+
+    for (; i > 1; --i) {
+      auto graph = origin_graph.clone();
+
+      graph.tail->add_empty_edge(head);
+      head = graph.head;
+
+      graph.give_up_nodes(*this);
+    }
+
+    if (range.lower_bound == 0) {
+      head->add_empty_edge(tail);
+    }
   } else {
     // bounded loop, we need a stack to track loop count
-
-    // todo: optimize for simple cases
+    auto new_head = create_node();
+    auto new_tail = create_node();
 
     tail->add_edge(Edge::repeat(range), head);
     new_head->add_edge(Edge::enter_loop(), head);
     tail->add_edge(Edge::exit_loop(range), new_tail);
-  }
-  head = new_head;
-  tail = new_tail;
-  // allow skipping the whole loop
-  if (range.lower_bound == 0) {
-    head->add_empty_edge(tail);
+
+    head = new_head;
+    tail = new_tail;
+
+    if (range.lower_bound == 0) {
+      head->add_empty_edge(tail);
+    }
   }
 }
 
@@ -111,6 +193,10 @@ void RegGraph::garbage_collection(PassFn pass_fn) {
     size = new_nodes.size();
     nodes = std::move(new_list);
   }
+}
+
+void RegGraph::edge_deduplication() {
+  for (auto node : nodes) { node.unique_edge(); }
 }
 
 bool RegGraph::replace_empty_transition(NodeSet &new_nodes) {
@@ -251,7 +337,7 @@ RegGraph RegGraph::single_edge(Edge &&edge) {
 }
 
 RegGraph RegGraph::join_graph(RegGraph &&graph1, RegGraph &&graph2) {
-  graph1.merge_head(graph1.head, graph2);
+  graph1.head->add_empty_edge(graph2.head);
   graph2.tail->add_empty_edge(graph1.tail);
   graph2.give_up_nodes(graph1);
   return std::move(graph1);
@@ -281,16 +367,8 @@ void RegGraph::match_tail_unknown() {
 }
 
 void RegGraph::optimize_graph() {
-  for (auto ptr = nodes.begin(); ptr != nodes.end(); ++ptr) {
-    ptr->unique_edge();
-  }
-
+  edge_deduplication();
   garbage_collection(&RegGraph::replace_empty_transition);
-
-  for (auto ptr = nodes.begin(); ptr != nodes.end(); ++ptr) {
-    ptr->unique_edge();
-  }
-
   garbage_collection(&RegGraph::fold_empty_edge);
 }
 
